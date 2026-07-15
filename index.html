@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F5F3EC" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>Carnet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Noto+Kufi+Arabic:wght@400;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:#F5F3EC; --paper-2:#FBFAF5; --ink:#1B2333; --ink-2:#5A6178; --ink-3:#8A8FA0;
+    --dot:#D8D3C4; --rule:#E5E1D5; --berry:#C0295A; --blue:#2E5E9C; --ok:#3B8C6E;
+    --radius:10px;
+    --mono:'Space Mono',ui-monospace,monospace;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'Inter',system-ui,sans-serif;
+  }
+  /* En arabe, on bascule les polices (couvrent les glyphes arabes) */
+  [dir="rtl"] {
+    --serif:'Noto Kufi Arabic','Fraunces',serif;
+    --sans:'Noto Sans Arabic',system-ui,sans-serif;
+    --mono:'Space Mono','Noto Sans Arabic',monospace; /* chiffres latins gardés en mono */
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; }
+  body {
+    font-family:var(--sans); color:var(--ink);
+    background-color:var(--paper);
+    background-image:radial-gradient(var(--dot) 1.2px, transparent 1.3px);
+    background-size:22px 22px; background-position:-1px -1px;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important;} }
+  .wrap { max-width:1040px; margin:0 auto; padding:24px 18px 90px; }
+
+  header.top { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+  .brand { display:flex; align-items:baseline; gap:12px; }
+  .brand h1 { font-family:var(--serif); font-weight:900; font-size:38px; letter-spacing:-.02em; margin:0; line-height:.9; }
+  .brand h1 .dot { color:var(--berry); }
+  .brand .sub { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.16em; color:var(--ink-3); }
+  .headright { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+  [dir="rtl"] .headright { align-items:flex-start; }
+  .today { font-family:var(--mono); font-size:12px; color:var(--ink-2); text-align:end; }
+  .today b { display:block; font-size:14px; color:var(--ink); }
+  .langsw { display:flex; gap:4px; }
+  .langsw button { font-family:var(--mono); font-size:11px; border:1.5px solid var(--rule); background:var(--paper-2);
+    color:var(--ink-2); padding:4px 9px; border-radius:6px; cursor:pointer; }
+  .langsw button[aria-pressed="true"] { border-color:var(--berry); color:var(--ink); background:#fff; }
+  .netdot { display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10px; color:var(--ink-3); }
+  .netdot .d { width:7px; height:7px; border-radius:50%; background:var(--ink-3); }
+  .netdot.on .d { background:var(--ok); } .netdot.off .d { background:var(--berry); }
+
+  nav.tabs { display:flex; gap:4px; border-bottom:1.5px solid var(--rule); margin-bottom:22px; overflow-x:auto; }
+  .tab { font-family:var(--mono); font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; padding:10px 13px;
+    border:none; background:none; color:var(--ink-3); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1.5px; white-space:nowrap; }
+  .tab[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--berry); }
+  .tab:focus-visible { outline:2px solid var(--berry); outline-offset:2px; border-radius:3px; }
+
+  .view { display:none; } .view.on { display:block; animation:fade .22s ease; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+
+  .card { background:var(--paper-2); border:1.5px solid var(--rule); border-radius:var(--radius); padding:18px; }
+  .card + .card { margin-top:16px; }
+  .card > h2 { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-2); margin:0 0 14px; font-weight:700; }
+
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .tile { background:var(--paper-2); border:1.5px solid var(--rule); border-radius:var(--radius); padding:15px; }
+  .tile .n { font-family:var(--serif); font-weight:900; font-size:32px; line-height:1; letter-spacing:-.02em; }
+  .tile .n.accent { color:var(--berry); }
+  .tile .l { font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); margin-top:8px; }
+  @media (max-width:720px){ .tiles{ grid-template-columns:repeat(2,1fr);} }
+
+  .matrix { overflow-x:auto; }
+  .mtable { border-collapse:collapse; }
+  .mrow-label { font-size:13px; font-weight:500; padding-inline:2px 14px; white-space:nowrap; text-align:start; }
+  .mrow-label .swatch { display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:7px; vertical-align:middle; }
+  .mcell { width:22px; height:22px; text-align:center; padding:0; }
+  .mdot { width:13px; height:13px; border-radius:50%; margin:0 auto; border:1.5px solid var(--dot); background:transparent; }
+  .mdot.done { border-color:transparent; }
+  .mcol-head { font-family:var(--mono); font-size:9px; color:var(--ink-3); height:18px; vertical-align:bottom; }
+  .mcol-head.month { color:var(--ink-2); font-weight:700; }
+  .legend { font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:12px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .legend .k { display:inline-flex; align-items:center; gap:6px; }
+  .legend .kd { width:11px; height:11px; border-radius:50%; }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  @media (max-width:720px){ .grid2{ grid-template-columns:1fr;} }
+  .chartbox { position:relative; height:200px; }
+
+  .streaks { list-style:none; margin:0; padding:0; }
+  .streaks li { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed var(--rule); }
+  .streaks li:last-child { border-bottom:none; }
+  .streaks .sw { width:9px; height:9px; border-radius:50%; flex:none; }
+  .streaks .nm { flex:1; font-size:14px; }
+  .streaks .v { font-family:var(--mono); font-weight:700; font-size:14px; }
+
+  .dayhead { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .dayhead input[type=date] { font-family:var(--mono); font-size:13px; padding:8px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
+  .daynav { border:1.5px solid var(--rule); background:var(--paper-2); border-radius:8px; width:36px; height:36px; font-size:17px; cursor:pointer; color:var(--ink-2); }
+  [dir="rtl"] .daynav { transform:scaleX(-1); }
+
+  .hlist,.tasks { list-style:none; margin:0; padding:0; }
+  .hlist li { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px dashed var(--rule); }
+  .hlist li:last-child { border-bottom:none; }
+  .check { width:26px; height:26px; border-radius:50%; border:2px solid var(--dot); background:transparent; cursor:pointer; flex:none; display:grid; place-items:center; color:#fff; font-size:14px; }
+  .check.on { border-color:transparent; }
+  .check:active { transform:scale(.88); }
+  .hname { flex:1; font-size:15px; }
+  .hname small { font-family:var(--mono); color:var(--ink-3); font-size:11px; }
+  .qin { width:70px; font-family:var(--mono); font-size:14px; padding:6px 8px; border:1.5px solid var(--rule); border-radius:7px; background:var(--paper-2); color:var(--ink); text-align:end; }
+  .qunit { font-family:var(--mono); font-size:11px; color:var(--ink-3); min-width:52px; }
+
+  .moods { display:flex; gap:8px; }
+  .mood { flex:1; border:1.5px solid var(--rule); background:var(--paper-2); border-radius:9px; padding:10px 0; font-size:22px; cursor:pointer; }
+  .mood[aria-pressed="true"] { border-color:var(--berry); background:#fff; box-shadow:0 0 0 2px rgba(192,41,90,.12); }
+
+  .tasks li { display:flex; align-items:center; gap:10px; padding:6px 0; }
+  .tbullet { font-family:var(--mono); background:none; border:none; cursor:pointer; font-size:15px; color:var(--ink-2); width:22px; }
+  .tasks li.done .ttext { text-decoration:line-through; color:var(--ink-3); }
+  .ttext { flex:1; font-size:14px; }
+  .tdel { border:none; background:none; color:var(--ink-3); cursor:pointer; font-size:14px; opacity:.5; }
+  .tdel:hover { opacity:1; color:var(--berry); }
+  .taskadd { display:flex; gap:8px; margin-top:6px; }
+  .taskadd input { flex:1; }
+
+  textarea, input.text { font-family:var(--sans); font-size:14px; width:100%; border:1.5px solid var(--rule); border-radius:8px; padding:10px 12px; background:var(--paper-2); color:var(--ink); resize:vertical; }
+  textarea { min-height:88px; }
+  input.text:focus, textarea:focus, .qin:focus { outline:none; border-color:var(--berry); }
+
+  .mform { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
+  @media (max-width:720px){ .mform{ grid-template-columns:1fr 1fr;} }
+  .field label { display:block; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); margin-bottom:5px; }
+  .field input,.field select { width:100%; font-family:var(--sans); font-size:14px; padding:9px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
+  .swatches { display:flex; gap:6px; }
+  .swatches button { width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+  .swatches button[aria-pressed="true"] { border-color:var(--ink); }
+
+  .btn { font-family:var(--mono); font-size:12px; letter-spacing:.04em; text-transform:uppercase; border:1.5px solid var(--ink); background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .btn:hover { background:var(--berry); border-color:var(--berry); }
+  .btn:focus-visible { outline:2px solid var(--berry); outline-offset:2px; }
+
+  .htable { width:100%; border-collapse:collapse; margin-top:16px; }
+  .htable th { font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); text-align:start; padding:8px 10px; border-bottom:1.5px solid var(--rule); }
+  .htable td { padding:10px; border-bottom:1px dashed var(--rule); font-size:14px; }
+  .htable .cdot { width:11px; height:11px; border-radius:50%; display:inline-block; }
+  .link { border:none; background:none; color:var(--ink-3); font-family:var(--mono); font-size:11px; cursor:pointer; text-decoration:underline; }
+  .link:hover { color:var(--berry); }
+  .empty { color:var(--ink-3); font-size:14px; font-style:italic; padding:8px 0; }
+
+  .headmeta { display:flex; align-items:center; gap:10px; }
+  .login { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    background:var(--paper); background-image:radial-gradient(var(--dot) 1.2px, transparent 1.3px);
+    background-size:22px 22px; padding:20px; }
+  .login-card { width:100%; max-width:340px; background:var(--paper-2); border:1.5px solid var(--rule);
+    border-radius:14px; padding:26px 24px; display:flex; flex-direction:column; gap:12px; }
+  .login-brand { font-family:var(--serif); font-weight:900; font-size:34px; letter-spacing:-.02em; line-height:1; }
+  .login-card h2 { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.16em;
+    color:var(--ink-2); margin:0 0 4px; font-weight:700; }
+  .login-card .btn { width:100%; }
+  .login-msg { font-family:var(--mono); font-size:12px; color:var(--berry); min-height:16px; }
+  .login-hint { font-size:12px; color:var(--ink-3); margin:6px 0 0; line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="login" id="login" style="display:none">
+  <div class="login-card">
+    <div class="login-brand">Carnet<span style="color:var(--berry)">.</span></div>
+    <h2 data-i18n="li_title"></h2>
+    <input class="text" id="liEmail" type="email" autocomplete="username" data-i18n-ph="li_email" />
+    <input class="text" id="liPass" type="password" autocomplete="current-password" data-i18n-ph="li_pass" />
+    <div id="loginMsg" class="login-msg"></div>
+    <button class="btn" id="liSignin" data-i18n="li_signin"></button>
+    <button class="btn ghost" id="liSignup" data-i18n="li_signup"></button>
+    <p class="login-hint" data-i18n="li_hint"></p>
+  </div>
+</div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Carnet<span class="dot">.</span></h1>
+      <span class="sub" data-i18n="tagline"></span>
+    </div>
+    <div class="headright">
+      <div class="langsw" id="langsw">
+        <button data-lang="fr" lang="fr">FR</button>
+        <button data-lang="en" lang="en">EN</button>
+        <button data-lang="ar" lang="ar">ع</button>
+      </div>
+      <div class="today" id="today"></div>
+      <div class="headmeta">
+        <span class="netdot" id="netdot"><span class="d"></span><span id="netlabel"></span></span>
+        <button class="link" id="logout" style="display:none" data-i18n="logout"></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"  data-view="dash"   data-i18n="tab_dash"></button>
+    <button class="tab" role="tab" aria-selected="false" data-view="day"    data-i18n="tab_day"></button>
+    <button class="tab" role="tab" aria-selected="false" data-view="habits" data-i18n="tab_habits"></button>
+  </nav>
+
+  <section class="view on" id="view-dash">
+    <div class="tiles" id="tiles"></div>
+    <div class="card">
+      <h2 data-i18n="matrix_title"></h2>
+      <div class="matrix" id="matrix"></div>
+      <div class="legend">
+        <span class="k"><span class="kd" style="background:var(--berry)"></span> <span data-i18n="leg_done"></span></span>
+        <span class="k"><span class="kd" style="border:1.5px solid var(--dot)"></span> <span data-i18n="leg_not"></span></span>
+        <span class="k" data-i18n="leg_int"></span>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2 data-i18n="comp_title"></h2><div class="chartbox"><canvas id="chartComp"></canvas></div></div>
+      <div class="card"><h2 data-i18n="mood_title"></h2><div class="chartbox"><canvas id="chartMood"></canvas></div></div>
+    </div>
+    <div class="card"><h2 data-i18n="streaks_title"></h2><ul class="streaks" id="streaks"></ul></div>
+  </section>
+
+  <section class="view" id="view-day">
+    <div class="dayhead">
+      <button class="daynav" id="dayPrev" aria-label="prev">‹</button>
+      <input type="date" id="dayDate" />
+      <button class="daynav" id="dayNext" aria-label="next">›</button>
+    </div>
+    <div class="card"><h2 data-i18n="day_habits"></h2><ul class="hlist" id="dayHabits"></ul></div>
+    <div class="card"><h2 data-i18n="day_mood"></h2><div class="moods" id="moods"></div></div>
+    <div class="card">
+      <h2 data-i18n="day_rapidlog"></h2>
+      <ul class="tasks" id="taskList"></ul>
+      <div class="taskadd"><input class="text" id="taskInput" /><button class="btn" id="taskAdd" data-i18n="add"></button></div>
+    </div>
+    <div class="card"><h2 data-i18n="note_title"></h2><textarea id="dayNote"></textarea></div>
+  </section>
+
+  <section class="view" id="view-habits">
+    <div class="card">
+      <h2 data-i18n="new_habit"></h2>
+      <div class="mform">
+        <div class="field"><label data-i18n="f_name"></label><input class="text" id="hName" /></div>
+        <div class="field"><label data-i18n="f_type"></label>
+          <select id="hType"><option value="binary" data-i18n="t_binary"></option><option value="quant" data-i18n="t_quant"></option></select>
+        </div>
+        <div class="field"><label data-i18n="f_unit"></label><input class="text" id="hUnit" /></div>
+        <div class="field"><label data-i18n="f_target"></label><input class="text" id="hTarget" type="number" min="1" /></div>
+        <div class="field"><label data-i18n="f_color"></label><div class="swatches" id="hSwatches"></div></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn" id="hAdd" data-i18n="create_habit"></button></div>
+    </div>
+    <div class="card"><h2 data-i18n="mine"></h2><table class="htable" id="habitTable"></table></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Config Supabase depuis config.js (window.CARNET). Absent = mode local (aperçu). -->
+<script src="config.js"></script>
+<script>
+/* ============================================================
+   CONFIG — définie dans config.js (window.CARNET).
+   Renseignée + client Supabase chargé + connecté(e) = mode synchronisé.
+   Sinon = mode local (cache navigateur), aucun compte requis.
+   La clé anon est PUBLIQUE par design : ce sont les règles RLS (côté base)
+   qui protègent les données, pas le secret de la clé.
+   ============================================================ */
+const CFG = window.CARNET || {};
+const HAS_SUPA = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase);
+let supa = null, UID = null, MODE = 'local';   // 'supabase' une fois connecté(e)
+
+/* ---- i18n ---- */
+const I18N = {
+  fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes',
+    matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'intensité = valeur / objectif',
+    comp_title:'Taux de complétion — 30 jours', mood_title:'Humeur — 14 jours', streaks_title:'Séries en cours',
+    day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
+    note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
+    new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
+    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', create_habit:"Créer l'habitude", mine:'Mes habitudes',
+    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.',
+    name_ph:'ex. Lire', unit_ph:'pages, min…',
+    empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
+    tile_habits:'habitudes suivies', tile_done:"complété aujourd'hui", tile_streak:'meilleure série (j)', tile_mood:'humeur moy. 7j',
+    week:'semaine', net_synced:'synchronisé', net_offline:'hors-ligne', net_local:'local',
+    li_title:'Connexion', li_email:'E-mail', li_pass:'Mot de passe', li_signin:'Se connecter', li_signup:'Créer un compte',
+    li_hint:'Une fois par appareil. Le même compte = les mêmes données partout.', logout:'déconnexion',
+    days:['dim','lun','mar','mer','jeu','ven','sam'],
+    months:['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'], loc:'fr-FR' },
+  en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits',
+    matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'intensity = value / target',
+    comp_title:'Completion rate — 30 days', mood_title:'Mood — 14 days', streaks_title:'Current streaks',
+    day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
+    note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
+    new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
+    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', create_habit:'Create habit', mine:'My habits',
+    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal',
+    name_ph:'e.g. Read', unit_ph:'pages, min…',
+    empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
+    tile_habits:'habits tracked', tile_done:'completed today', tile_streak:'best streak (d)', tile_mood:'avg mood 7d',
+    week:'week', net_synced:'synced', net_offline:'offline', net_local:'local',
+    li_title:'Sign in', li_email:'Email', li_pass:'Password', li_signin:'Sign in', li_signup:'Create account',
+    li_hint:'Once per device. Same account = same data everywhere.', logout:'sign out',
+    days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], loc:'en-US' },
+  ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات',
+    matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'الكثافة = القيمة / الهدف',
+    comp_title:'نسبة الإنجاز — 30 يومًا', mood_title:'المزاج — 14 يومًا', streaks_title:'السلاسل الجارية',
+    day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
+    note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
+    new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
+    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', create_habit:'إنشاء العادة', mine:'عاداتي',
+    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف',
+    name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
+    empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
+    tile_habits:'عادات متابَعة', tile_done:'أُنجز اليوم', tile_streak:'أطول سلسلة (يوم)', tile_mood:'متوسط المزاج 7ي',
+    week:'أسبوع', net_synced:'متزامن', net_offline:'غير متصل', net_local:'محلي',
+    li_title:'تسجيل الدخول', li_email:'البريد الإلكتروني', li_pass:'كلمة المرور', li_signin:'دخول', li_signup:'إنشاء حساب',
+    li_hint:'مرة واحدة لكل جهاز. نفس الحساب = نفس البيانات في كل مكان.', logout:'خروج',
+    days:['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'],
+    months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'], loc:'ar' }
+};
+let lang = 'fr';
+function t(k){ return I18N[lang][k]; }
+
+/* ---- KV local : window.storage (aperçu) sinon localStorage (self-host) ---- */
+const KV = {
+  async get(k){ if(typeof window.storage!=='undefined'){ try{const r=await window.storage.get(k);return r?r.value:null}catch{return null} } try{return localStorage.getItem(k)}catch{return null} },
+  async set(k,v){ if(typeof window.storage!=='undefined'){ try{await window.storage.set(k,v)}catch(e){console.error(e)} return } try{localStorage.setItem(k,v)}catch(e){console.error(e)} }
+};
+const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
+
+/* ---- Supabase : lecture de l'état complet ---- */
+async function supaGetState(){
+  const [h,l,d,tk] = await Promise.all([
+    supa.from('habits').select('id,name,type,unit,target,color,position').eq('archived',false).order('position'),
+    supa.from('logs').select('day,habit_id,value'),
+    supa.from('days').select('day,mood,note'),
+    supa.from('tasks').select('id,day,txt,done').order('position')
+  ]);
+  for(const r of [h,l,d,tk]) if(r.error) throw r.error;
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color}));
+  const days = {};
+  const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
+  for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
+  for(const r of d.data){ touch(r.day); days[r.day].mood = r.mood==null?null:Number(r.mood); days[r.day].note = r.note||''; }
+  for(const r of tk.data){ touch(r.day); days[r.day].tasks.push({id:r.id, t:r.txt, done:!!r.done}); }
+  return { habits, days };
+}
+
+/* ---- Supabase : application d'une opération d'écriture ---- */
+async function applyOp(op){
+  const p = op.payload; let res;
+  switch(op.kind){
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color}); break;
+    case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
+    case 'log':
+      if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
+      else res = await supa.from('logs').upsert({user_id:UID,day:p.day,habit_id:p.habit_id,value:String(p.value)},{onConflict:'user_id,day,habit_id'});
+      break;
+    case 'day':      res = await supa.from('days').upsert({user_id:UID,day:p.day,mood:p.mood,note:p.note},{onConflict:'user_id,day'}); break;
+    case 'taskAdd':  res = await supa.from('tasks').insert({id:p.id,user_id:UID,day:p.day,txt:p.txt}); break;
+    case 'taskUpd':  res = await supa.from('tasks').update({done:p.done}).eq('id',p.id); break;
+    case 'taskDel':  res = await supa.from('tasks').delete().eq('id',p.id); break;
+  }
+  if(res && res.error) throw res.error;
+}
+
+/* file d'attente hors-ligne (rejoue les écritures quand le réseau revient) */
+let outbox=[];
+async function loadOutbox(){ const raw=await KV.get(OUTBOX); outbox = raw?JSON.parse(raw):[]; }
+async function saveOutbox(){ await KV.set(OUTBOX, JSON.stringify(outbox)); }
+function enqueue(op){ outbox.push(op); saveOutbox(); }
+async function flushOutbox(){
+  while(outbox.length){
+    try{ await applyOp(outbox[0]); outbox.shift(); await saveOutbox(); }
+    catch{ return false; }
+  }
+  return true;
+}
+
+/* ---- ÉTAT ---- */
+const PALETTE=['#C0295A','#2E5E9C','#6E7B3A','#CE922F','#7A4CA0','#2E9C8E'];
+let state=null, online=true;
+function id(){ return Math.random().toString(36).slice(2,9); }
+
+async function loadLocal(){ const raw=await KV.get(KEY); if(raw){try{return JSON.parse(raw)}catch{}} return {habits:[],days:{}}; }
+async function saveLocal(){ await KV.set(KEY, JSON.stringify(state)); }
+let lt=null; function saveLocalSoon(){ clearTimeout(lt); lt=setTimeout(saveLocal,300); }
+
+async function load(){
+  await loadOutbox();
+  if(MODE==='supabase'){
+    await flushOutbox();
+    try{ state = await supaGetState(); online=true; await saveLocal(); }
+    catch{ state = await loadLocal(); online=false; }
+  } else {
+    state = await loadLocal(); online = true;
+  }
+  state.habits=state.habits||[]; state.days=state.days||{};
+  setNet();
+}
+function setNet(){
+  const el=document.getElementById('netdot'), lbl=document.getElementById('netlabel');
+  let label;
+  if(MODE!=='supabase'){ el.className='netdot'; label=t('net_local'); }
+  else if(online){ el.className='netdot on'; label=t('net_synced'); }
+  else { el.className='netdot off'; label=t('net_offline'); }
+  lbl.textContent=label;
+}
+
+/* ---- helpers date ---- */
+function pad(n){return String(n).padStart(2,'0');}
+function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function todayKey(){return keyOf(new Date());}
+function parseKey(k){const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);}
+function lastNKeys(n){const out=[];const b=new Date();for(let i=n-1;i>=0;i--){const d=new Date(b);d.setDate(d.getDate()-i);out.push(keyOf(d));}return out;}
+function day(k){ if(!state.days[k]) state.days[k]={h:{},mood:null,note:'',tasks:[]}; const d=state.days[k]; d.h=d.h||{}; d.tasks=d.tasks||[]; if(d.note==null)d.note=''; return d; }
+function dayRO(k){return state.days[k]||null;}
+
+/* ---- calculs ---- */
+function isDone(h,v){ if(v==null||v===false)return false; if(h.type==='binary')return !!v; return Number(v)>=Number(h.target||1); }
+function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
+function completion(k){ if(!state.habits.length)return 0; let n=0; for(const h of state.habits) if(isDone(h,hv(k,h.id)))n++; return n/state.habits.length; }
+function streak(h){ let n=0; const d=new Date(); for(;;){ if(isDone(h,hv(keyOf(d),h.id))){n++;d.setDate(d.getDate()-1);}else break; } return n; }
+function moodAvg(keys){ const v=keys.map(k=>{const d=dayRO(k);return d?d.mood:null;}).filter(x=>x!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
+function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============================================================
+   COMMITS — mutation locale immédiate + écriture Supabase (ou file d'attente)
+   ============================================================ */
+function push(kind, payload){
+  if(MODE!=='supabase') return;              // mode local : rien à synchroniser
+  enqueue({kind, payload});
+  flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
+}
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color}); }
+function commitHabitDel(hid){ push('habitDel', {id:hid}); }
+function commitLog(dk,hid,val){ push('log', {day:dk,habit_id:hid,value:val}); }
+function commitDay(dk,mood,note){ push('day', {day:dk,mood,note}); }
+function commitTaskAdd(dk,task){ push('taskAdd', {id:task.id,day:dk,txt:task.t}); }
+function commitTaskUpd(tid,done){ push('taskUpd', {id:tid,done}); }
+function commitTaskDel(tid){ push('taskDel', {id:tid}); }
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang==='ar')?'rtl':'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
+  document.getElementById('taskInput').placeholder = t('task_ph');
+  document.getElementById('dayNote').placeholder = t('note_ph');
+  document.getElementById('hName').placeholder = t('name_ph');
+  document.getElementById('hUnit').placeholder = t('unit_ph');
+  document.querySelectorAll('#langsw button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.lang===lang));
+  renderToday(); setNet();
+}
+function renderToday(){
+  const d=new Date();
+  const full=d.toLocaleDateString(I18N[lang].loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('today').innerHTML=`<b>${full}</b>${keyOf(d)}`;
+}
+
+function renderTiles(){
+  const streaks=state.habits.map(streak); const best=streaks.length?Math.max(...streaks):0;
+  const m=moodAvg(lastNKeys(7));
+  const data=[
+    {n:state.habits.length,l:t('tile_habits')},
+    {n:Math.round(completion(todayKey())*100)+'%',l:t('tile_done'),a:true},
+    {n:best,l:t('tile_streak')},
+    {n:m==null?'—':m.toFixed(1),l:t('tile_mood')} ];
+  document.getElementById('tiles').innerHTML=data.map(x=>`<div class="tile"><div class="n${x.a?' accent':''}">${x.n}</div><div class="l">${x.l}</div></div>`).join('');
+}
+function renderMatrix(){
+  const box=document.getElementById('matrix');
+  if(!state.habits.length){ box.innerHTML=`<p class="empty">${t('empty_no_habits')}</p>`; return; }
+  const keys=lastNKeys(35);
+  let head='<tr><th></th>';
+  keys.forEach(k=>{ const d=parseKey(k); const first=d.getDate()===1;
+    head+=`<th class="mcol-head${first?' month':''}">${first?I18N[lang].months[d.getMonth()]:(d.getDay()===1?d.getDate():'')}</th>`; });
+  head+='</tr>';
+  let rows='';
+  for(const h of state.habits){
+    let c=`<td class="mrow-label"><span class="swatch" style="background:${h.color}"></span>${esc(h.name)}</td>`;
+    for(const k of keys){ const v=hv(k,h.id); const done=isDone(h,v); let st='';
+      if(done){ let inten=1; if(h.type==='quant')inten=Math.min(1,Number(v)/Number(h.target||1)); st=`background:${rgba(h.color,.45+.55*inten)}`; }
+      c+=`<td class="mcell"><div class="mdot${done?' done':''}" style="${st}" title="${esc(h.name)} · ${k}"></div></td>`; }
+    rows+=`<tr>${c}</tr>`;
+  }
+  box.innerHTML=`<table class="mtable"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+function renderStreaks(){
+  const el=document.getElementById('streaks');
+  if(!state.habits.length){ el.innerHTML=`<li class="empty">—</li>`; return; }
+  el.innerHTML=state.habits.map(h=>({h,s:streak(h)})).sort((a,b)=>b.s-a.s)
+    .map(({h,s})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}</span></li>`).join('');
+}
+let cComp=null,cMood=null;
+function renderCharts(){
+  if(typeof Chart==='undefined')return;
+  Chart.defaults.font.family="'Space Mono',monospace"; Chart.defaults.font.size=10; Chart.defaults.color='#8A8FA0';
+  const rtl=(lang==='ar');
+  const k30=lastNKeys(30), comp=k30.map(k=>Math.round(completion(k)*100));
+  const l30=k30.map(k=>{const d=parseKey(k);return d.getDate()===1?I18N[lang].months[d.getMonth()]:d.getDate();});
+  if(cComp)cComp.destroy();
+  cComp=new Chart(document.getElementById('chartComp'),{type:'bar',
+    data:{labels:l30,datasets:[{data:comp,backgroundColor:'#C0295A',borderRadius:3,barPercentage:.7}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}},
+      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}}}}});
+  const k14=lastNKeys(14), mood=k14.map(k=>{const d=dayRO(k);return d&&d.mood!=null?d.mood:null;}), l14=k14.map(k=>parseKey(k).getDate());
+  if(cMood)cMood.destroy();
+  cMood=new Chart(document.getElementById('chartMood'),{type:'line',
+    data:{labels:l14,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:3,pointBackgroundColor:'#2E5E9C'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false}}}}});
+}
+function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); }
+
+let curDay=todayKey();
+const MOOD={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
+function renderDay(){
+  document.getElementById('dayDate').value=curDay;
+  const d=day(curDay), hl=document.getElementById('dayHabits');
+  if(!state.habits.length){ hl.innerHTML=`<li class="empty">${t('empty_create_first')}</li>`; }
+  else{
+    hl.innerHTML=state.habits.map(h=>{ const v=d.h[h.id];
+      if(h.type==='binary'){ const on=!!v;
+        return `<li><button class="check${on?' on':''}" data-toggle="${h.id}" style="${on?'background:'+h.color:''}" aria-pressed="${on}">${on?'✓':''}</button><span class="hname">${esc(h.name)}</span></li>`; }
+      const done=isDone(h,v);
+      return `<li><button class="check${done?' on':''}" style="${done?'background:'+h.color:''}" aria-hidden="true">${done?'✓':''}</button><span class="hname">${esc(h.name)} <small>${t('obj')} ${h.target} ${esc(h.unit)}</small></span><input class="qin" type="number" min="0" data-quant="${h.id}" value="${v!=null?v:''}" /><span class="qunit">${esc(h.unit)}</span></li>`;
+    }).join('');
+  }
+  document.getElementById('moods').innerHTML=[1,2,3,4,5].map(m=>`<button class="mood" data-mood="${m}" aria-pressed="${d.mood===m}">${MOOD[m]}</button>`).join('');
+  const tl=document.getElementById('taskList');
+  tl.innerHTML=d.tasks.length?d.tasks.map(x=>`<li class="${x.done?'done':''}"><button class="tbullet" data-task="${x.id}">${x.done?'✓':'•'}</button><span class="ttext">${esc(x.t)}</span><button class="tdel" data-taskdel="${x.id}">✕</button></li>`).join(''):`<li class="empty">${t('empty_none')}</li>`;
+  document.getElementById('dayNote').value=d.note||'';
+}
+
+let newColor=PALETTE[0];
+function renderSwatches(){ document.getElementById('hSwatches').innerHTML=PALETTE.map(c=>`<button data-color="${c}" style="background:${c}" aria-pressed="${c===newColor}"></button>`).join(''); }
+function renderHabitTable(){
+  const el=document.getElementById('habitTable');
+  if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
+  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th></th></tr></thead><tbody>`+
+    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td><button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
+}
+function renderHabits(){ renderSwatches(); renderHabitTable(); }
+
+/* ============================================================
+   ÉVÉNEMENTS
+   ============================================================ */
+function switchView(v){
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
+  if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits();
+}
+document.querySelectorAll('.tab').forEach(x=>x.addEventListener('click',()=>switchView(x.dataset.view)));
+
+document.getElementById('langsw').addEventListener('click',e=>{ const b=e.target.closest('[data-lang]'); if(!b)return;
+  lang=b.dataset.lang; KV.set(LANGKEY,lang); applyI18n();
+  const cur=document.querySelector('.tab[aria-selected="true"]').dataset.view; switchView(cur); });
+
+document.getElementById('view-day').addEventListener('click',e=>{ const d=day(curDay);
+  const tog=e.target.closest('[data-toggle]');
+  if(tog){ const hid=tog.dataset.toggle; d.h[hid]=!d.h[hid]; saveLocalSoon(); commitLog(curDay,hid,d.h[hid]?1:null); renderDay(); return; }
+  const mo=e.target.closest('[data-mood]');
+  if(mo){ const m=+mo.dataset.mood; d.mood=(d.mood===m?null:m); saveLocalSoon(); commitDay(curDay,d.mood,d.note); renderDay(); return; }
+  const tk=e.target.closest('[data-task]');
+  if(tk){ const x=d.tasks.find(y=>y.id===tk.dataset.task); if(x){x.done=!x.done; saveLocalSoon(); commitTaskUpd(x.id,x.done); renderDay();} return; }
+  const td=e.target.closest('[data-taskdel]');
+  if(td){ d.tasks=d.tasks.filter(y=>y.id!==td.dataset.taskdel); saveLocalSoon(); commitTaskDel(td.dataset.taskdel); renderDay(); return; }
+});
+document.getElementById('view-day').addEventListener('input',e=>{ const d=day(curDay);
+  const q=e.target.closest('[data-quant]');
+  if(q){ const val=e.target.value===''?null:Number(e.target.value); d.h[q.dataset.quant]=val; saveLocalSoon(); commitLog(curDay,q.dataset.quant,val); }});
+document.getElementById('dayNote').addEventListener('input',e=>{ const d=day(curDay); d.note=e.target.value; saveLocalSoon();
+  clearTimeout(window._nt); window._nt=setTimeout(()=>commitDay(curDay,d.mood,d.note),600); });
+
+function addTask(){ const inp=document.getElementById('taskInput'); const v=inp.value.trim(); if(!v)return;
+  const task={id:id(),t:v,done:false}; day(curDay).tasks.push(task); inp.value=''; saveLocalSoon(); commitTaskAdd(curDay,task); renderDay(); inp.focus(); }
+document.getElementById('taskAdd').addEventListener('click',addTask);
+document.getElementById('taskInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+document.getElementById('dayDate').addEventListener('change',e=>{curDay=e.target.value||todayKey();renderDay();});
+document.getElementById('dayPrev').addEventListener('click',()=>{const d=parseKey(curDay);d.setDate(d.getDate()-1);curDay=keyOf(d);renderDay();});
+document.getElementById('dayNext').addEventListener('click',()=>{const d=parseKey(curDay);d.setDate(d.getDate()+1);curDay=keyOf(d);renderDay();});
+
+document.getElementById('hSwatches').addEventListener('click',e=>{const b=e.target.closest('[data-color]');if(!b)return;newColor=b.dataset.color;renderSwatches();});
+document.getElementById('hType').addEventListener('change',e=>{const q=e.target.value==='quant';document.getElementById('hUnit').disabled=!q;document.getElementById('hTarget').disabled=!q;});
+document.getElementById('hAdd').addEventListener('click',()=>{
+  const name=document.getElementById('hName').value.trim(); if(!name){document.getElementById('hName').focus();return;}
+  const type=document.getElementById('hType').value;
+  const h={id:id(),name,type,color:newColor,unit:type==='quant'?(document.getElementById('hUnit').value.trim()||''):'',target:type==='quant'?(Number(document.getElementById('hTarget').value)||1):1};
+  state.habits.push(h); saveLocal(); commitHabit(h);
+  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value='';
+  renderHabits();
+});
+document.getElementById('habitTable').addEventListener('click',e=>{const del=e.target.closest('[data-hdel]');if(!del)return;
+  const h=state.habits.find(x=>x.id===del.dataset.hdel);
+  if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
+
+/* connexion / déconnexion */
+document.getElementById('liSignin').addEventListener('click',()=>doAuth('signin'));
+document.getElementById('liSignup').addEventListener('click',()=>doAuth('signup'));
+document.getElementById('liPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth('signin'); });
+document.getElementById('logout').addEventListener('click',signOut);
+
+/* reconnexion : on rejoue la file d'attente */
+window.addEventListener('online', async ()=>{ if(MODE==='supabase'){ const ok=await flushOutbox(); online=ok; setNet(); }});
+window.addEventListener('offline', ()=>{ if(MODE==='supabase'){ online=false; setNet(); }});
+
+/* ============================================================
+   AUTH + INIT
+   ============================================================ */
+function showLogin(msg){
+  document.getElementById('login').style.display='flex';
+  document.getElementById('loginMsg').textContent = msg||'';
+}
+function hideLogin(){ document.getElementById('login').style.display='none'; }
+
+async function doAuth(kind){
+  const email=document.getElementById('liEmail').value.trim();
+  const pass =document.getElementById('liPass').value;
+  if(!email||!pass){ document.getElementById('loginMsg').textContent = lang==='ar'?'أدخل البريد وكلمة المرور':(lang==='en'?'Enter email and password':'Renseigne e-mail et mot de passe'); return; }
+  document.getElementById('loginMsg').textContent = '…';
+  const fn = kind==='signup' ? supa.auth.signUp({email,password:pass}) : supa.auth.signInWithPassword({email,password:pass});
+  const { data, error } = await fn;
+  if(error){ document.getElementById('loginMsg').textContent = error.message; return; }
+  if(kind==='signup' && !data.session){
+    document.getElementById('loginMsg').textContent = lang==='ar'?'تحقّق من بريدك لتأكيد الحساب':(lang==='en'?'Check your inbox to confirm your account':'Vérifie ta boîte mail pour confirmer le compte');
+  }
+  // onAuthStateChange enchaîne startApp() si session ok
+}
+
+async function startApp(){
+  await load();
+  applyI18n();
+  switchView('dash');
+  if(CFG.REALTIME && MODE==='supabase') subscribeRealtime();
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+}
+
+let rtChannel=null, rtTimer=null;
+function subscribeRealtime(){
+  if(rtChannel) return;
+  rtChannel = supa.channel('carnet')
+    .on('postgres_changes', {event:'*', schema:'public'}, ()=>{
+      clearTimeout(rtTimer);
+      rtTimer=setTimeout(async ()=>{
+        try{ state=await supaGetState(); await saveLocal();
+          const cur=document.querySelector('.tab[aria-selected="true"]').dataset.view; switchView(cur);
+        }catch{}
+      }, 500);
+    }).subscribe();
+}
+
+async function signOut(){ if(supa){ await supa.auth.signOut(); location.reload(); } }
+
+(async function(){
+  const savedLang = await KV.get(LANGKEY); if(savedLang && I18N[savedLang]) lang=savedLang;
+  applyI18n();
+
+  if(HAS_SUPA){
+    supa = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+    document.getElementById('logout').style.display='';
+    const { data:{ session } } = await supa.auth.getSession();
+    if(session){ UID=session.user.id; MODE='supabase'; await startApp(); }
+    else { showLogin(); }
+    supa.auth.onAuthStateChange((_e, sess)=>{
+      if(sess && MODE!=='supabase'){ UID=sess.user.id; MODE='supabase'; hideLogin(); startApp(); }
+    });
+  } else {
+    // aperçu / self-host sans config : mode local
+    MODE='local'; await startApp();
+  }
+})();
+</script>
+</body>
+</html>
