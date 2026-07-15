@@ -4,6 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#F5F3EC" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Carnet" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icon-192.png" />
 <link rel="apple-touch-icon" href="icon-192.png" />
@@ -165,6 +169,37 @@
   .login-card .btn { width:100%; }
   .login-msg { font-family:var(--mono); font-size:12px; color:var(--berry); min-height:16px; }
   .login-hint { font-size:12px; color:var(--ink-3); margin:6px 0 0; line-height:1.5; }
+
+  /* ---- Responsive : téléphone / petite tablette ---- */
+  @media (max-width:600px){
+    .wrap { padding:16px 13px 88px; }
+    header.top { flex-direction:column; align-items:flex-start; gap:12px; }
+    .headright { align-items:flex-start; width:100%; }
+    [dir="rtl"] .headright { align-items:flex-end; }
+    .today { text-align:start; }
+    [dir="rtl"] .today { text-align:end; }
+    .brand h1 { font-size:32px; }
+    nav.tabs { gap:0; }
+    .tab { padding:10px 11px; font-size:11px; }
+    .tiles { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .tile { padding:13px; }
+    .tile .n { font-size:26px; }
+    .card { padding:15px 14px; }
+    .card > h2 { font-size:10px; }
+    .mform { grid-template-columns:1fr; gap:12px; }
+    .swatches { gap:8px; }
+    .swatches button { width:26px; height:26px; }
+    .hlist li { gap:9px; }
+    .hname { font-size:14px; }
+    .qin { width:60px; }
+    .qunit { min-width:44px; }
+    .moods .mood { font-size:20px; padding:9px 0; }
+    .dayhead input[type=date] { flex:1; }
+  }
+  @media (max-width:360px){
+    .tiles { grid-template-columns:1fr; }
+    .brand h1 { font-size:28px; }
+  }
 </style>
 </head>
 <body>
@@ -259,7 +294,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <!-- Config Supabase depuis config.js (window.CARNET). Absent = mode local (aperçu). -->
 <script src="config.js"></script>
 <script>
@@ -514,12 +549,12 @@ function renderCharts(){
   cComp=new Chart(document.getElementById('chartComp'),{type:'bar',
     data:{labels:l30,datasets:[{data:comp,backgroundColor:'#C0295A',borderRadius:3,barPercentage:.7}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}},
-      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}}}}});
+      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}}}}});
   const k14=lastNKeys(14), mood=k14.map(k=>{const d=dayRO(k);return d&&d.mood!=null?d.mood:null;}), l14=k14.map(k=>parseKey(k).getDate());
   if(cMood)cMood.destroy();
   cMood=new Chart(document.getElementById('chartMood'),{type:'line',
     data:{labels:l14,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:3,pointBackgroundColor:'#2E5E9C'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false}}}}});
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false}}}}});
 }
 function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); }
 
@@ -643,6 +678,8 @@ async function startApp(){
   applyI18n();
   switchView('dash');
   if(CFG.REALTIME && MODE==='supabase') subscribeRealtime();
+  // Service worker : rend l'app installable (écran d'accueil, plein écran) + hors-ligne.
+  // Stratégie "réseau d'abord" (voir sw.js) : jamais de version périmée servie en ligne.
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
