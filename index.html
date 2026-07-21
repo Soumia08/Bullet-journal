@@ -94,35 +94,31 @@
   .legend .kd { width:11px; height:11px; border-radius:50%; }
 
   .grid2 {
-	  display: grid;
-	  grid-template-columns: repeat(2, 1fr);
-	  gap: 20px;
-	  align-items: stretch; /* Les deux cartes prennent la même hauteur */
-	}
-
-	.card {
-	  display: flex;
-	  flex-direction: column;
-	}
-
-	.chartbox {
-	  flex: 1;
-	  position: relative;
-	  min-height: 280px; /* ou la hauteur que tu souhaites */
-	}
-
-	.chartbox canvas {
-	  width: 100% !important;
-	  height: 100% !important;
-	}
-	.grid2 > .card {
-		margin: 0 !important;
-		align-self: start;
-	}
-
-	.grid2 > .card > h2 {
-		margin-top: 0 !important;
-	}
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+  .chartbox {
+    flex: 1;
+    position: relative;
+    min-height: 280px;
+  }
+  .chartbox canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .grid2 > .card {
+    margin: 0 !important;
+    align-self: start;
+  }
+  .grid2 > .card > h2 {
+    margin-top: 0 !important;
+  }
   .chartbox { position:relative; height:200px; }
   .chartbox canvas { position:absolute; inset:0; width:100%!important; height:100%!important; }
   @media (max-width:720px){ .grid2{ grid-template-columns:1fr;} }
@@ -168,7 +164,7 @@
   textarea { min-height:88px; }
   input.text:focus, textarea:focus, .qin:focus { outline:none; border-color:var(--berry); }
 
-  .mform { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
+  .mform { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
   @media (max-width:720px){ .mform{ grid-template-columns:1fr 1fr;} }
   .field label { display:block; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); margin-bottom:5px; }
   .field input,.field select { width:100%; font-family:var(--sans); font-size:14px; padding:9px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
@@ -183,6 +179,8 @@
   .htable { width:100%; border-collapse:collapse; margin-top:16px; }
   .htable th { font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); text-align:start; padding:8px 10px; border-bottom:1.5px solid var(--rule); }
   .htable td { padding:10px; border-bottom:1px dashed var(--rule); font-size:14px; }
+  .impsel { font-family:var(--mono); font-size:12px; padding:5px 7px; border:1.5px solid var(--rule); border-radius:7px; background:var(--paper-2); color:var(--ink); }
+  .impsel:focus { outline:none; border-color:var(--berry); }
   .htable .cdot { width:11px; height:11px; border-radius:50%; display:inline-block; }
   .link { border:none; background:none; color:var(--ink-3); font-family:var(--mono); font-size:11px; cursor:pointer; text-decoration:underline; }
   .link:hover { color:var(--berry); }
@@ -200,6 +198,14 @@
   .login-card .btn { width:100%; }
   .login-msg { font-family:var(--mono); font-size:12px; color:var(--berry); min-height:16px; }
   .login-hint { font-size:12px; color:var(--ink-3); margin:6px 0 0; line-height:1.5; }
+
+  .rangebar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; flex-wrap:wrap; }
+  .ranges { display:flex; gap:4px; flex-wrap:wrap; }
+  .ranges button { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink-2); padding:7px 12px; border-radius:8px; cursor:pointer; }
+  .ranges button[aria-pressed="true"] { border-color:var(--berry); color:var(--ink); background:#fff; }
+  .rangeavg { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); }
+  .rangeavg #rangeAvg { font-family:var(--serif); font-weight:900; font-size:22px; letter-spacing:-.01em; color:var(--berry); text-transform:none; }
 
   /* ---- Responsive : téléphone / petite tablette ---- */
   @media (max-width:600px){
@@ -283,22 +289,19 @@
         <span class="k" data-i18n="leg_int"></span>
       </div>
     </div>
-	<br>
+    <div class="rangebar">
+      <div class="ranges" id="rangeSel">
+        <button data-range="week"  data-i18n="r_week"></button>
+        <button data-range="month" data-i18n="r_month" aria-pressed="true"></button>
+        <button data-range="3m"    data-i18n="r_3m"></button>
+        <button data-range="6m"    data-i18n="r_6m"></button>
+      </div>
+      <div class="rangeavg"><span data-i18n="avg"></span> · <span id="rangeAvg">—</span></div>
+    </div>
     <div class="grid2">
-	  <div class="card">
-		<h2 data-i18n="comp_title"></h2>
-		<div class="chartbox">
-		  <canvas id="chartComp"></canvas>
-		</div>
-	  </div>
-
-	  <div class="card">
-		<h2 data-i18n="mood_title"></h2>
-		<div class="chartbox">
-		  <canvas id="chartMood"></canvas>
-		</div>
-	  </div>
-	</div>
+      <div class="card"><h2 data-i18n="comp_title"></h2><div class="chartbox"><canvas id="chartComp"></canvas></div></div>
+      <div class="card"><h2 data-i18n="mood_title"></h2><div class="chartbox"><canvas id="chartMood"></canvas></div></div>
+    </div>
     <div class="card"><h2 data-i18n="streaks_title"></h2><ul class="streaks" id="streaks"></ul></div>
   </section>
 
@@ -328,6 +331,9 @@
         </div>
         <div class="field"><label data-i18n="f_unit"></label><input class="text" id="hUnit" /></div>
         <div class="field"><label data-i18n="f_target"></label><input class="text" id="hTarget" type="number" min="1" /></div>
+        <div class="field"><label data-i18n="f_importance"></label>
+          <select id="hImp"><option value="1">1 · 100%</option><option value="2">2 · 50%</option><option value="3">3 · 25%</option></select>
+        </div>
         <div class="field"><label data-i18n="f_color"></label><div class="swatches" id="hSwatches"></div></div>
       </div>
       <div style="margin-top:14px"><button class="btn" id="hAdd" data-i18n="create_habit"></button></div>
@@ -356,11 +362,11 @@ let supa = null, UID = null, MODE = 'local';   // 'supabase' une fois connecté(
 const I18N = {
   fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes',
     matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'intensité = valeur / objectif',
-    comp_title:'Taux de complétion — 30 jours', mood_title:'Humeur — 14 jours', streaks_title:'Séries en cours',
+    comp_title:'Taux de complétion', mood_title:'Humeur', streaks_title:'Séries en cours', r_week:'Semaine', r_month:'Mois en cours', r_3m:'3 mois', r_6m:'6 mois', avg:'moyenne',
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
-    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', create_habit:"Créer l'habitude", mine:'Mes habitudes',
+    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', create_habit:"Créer l'habitude", mine:'Mes habitudes',
     th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
@@ -372,11 +378,11 @@ const I18N = {
     months:['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'], loc:'fr-FR' },
   en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits',
     matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'intensity = value / target',
-    comp_title:'Completion rate — 30 days', mood_title:'Mood — 14 days', streaks_title:'Current streaks',
+    comp_title:'Completion rate', mood_title:'Mood', streaks_title:'Current streaks', r_week:'Week', r_month:'This month', r_3m:'3 months', r_6m:'6 months', avg:'average',
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
-    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', create_habit:'Create habit', mine:'My habits',
+    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', create_habit:'Create habit', mine:'My habits',
     th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
@@ -388,11 +394,11 @@ const I18N = {
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], loc:'en-US' },
   ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات',
     matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'الكثافة = القيمة / الهدف',
-    comp_title:'نسبة الإنجاز — 30 يومًا', mood_title:'المزاج — 14 يومًا', streaks_title:'السلاسل الجارية',
+    comp_title:'نسبة الإنجاز', mood_title:'المزاج', streaks_title:'السلاسل الجارية', r_week:'أسبوع', r_month:'هذا الشهر', r_3m:'3 أشهر', r_6m:'6 أشهر', avg:'المتوسط',
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
-    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', create_habit:'إنشاء العادة', mine:'عاداتي',
+    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', create_habit:'إنشاء العادة', mine:'عاداتي',
     th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
@@ -416,13 +422,13 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 /* ---- Supabase : lecture de l'état complet ---- */
 async function supaGetState(){
   const [h,l,d,tk] = await Promise.all([
-    supa.from('habits').select('id,name,type,unit,target,color,position').eq('archived',false).order('position'),
+    supa.from('habits').select('id,name,type,unit,target,color,position,importance').eq('archived',false).order('position'),
     supa.from('logs').select('day,habit_id,value'),
     supa.from('days').select('day,mood,note'),
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color,importance:Number(x.importance||1)}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -435,7 +441,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color,importance:p.importance||1}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -504,7 +510,16 @@ function dayRO(k){return state.days[k]||null;}
 /* ---- calculs ---- */
 function isDone(h,v){ if(v==null||v===false)return false; if(h.type==='binary')return !!v; return Number(v)>=Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
-function completion(k){ if(!state.habits.length)return 0; let n=0; for(const h of state.habits) if(isDone(h,hv(k,h.id)))n++; return n/state.habits.length; }
+// Poids selon l'importance : 1 -> 100%, 2 -> 50%, 3 -> 25%
+const WEIGHT={1:1,2:0.5,3:0.25};
+function weightOf(h){ return WEIGHT[h.importance||1] || 1; }
+// Taux de complétion pondéré par l'importance des habitudes
+function completion(k){
+  if(!state.habits.length) return 0;
+  let tot=0, done=0;
+  for(const h of state.habits){ const w=weightOf(h); tot+=w; if(isDone(h,hv(k,h.id))) done+=w; }
+  return tot ? done/tot : 0;
+}
 function streak(h){ let n=0; const d=new Date(); for(;;){ if(isDone(h,hv(keyOf(d),h.id))){n++;d.setDate(d.getDate()-1);}else break; } return n; }
 function moodAvg(keys){ const v=keys.map(k=>{const d=dayRO(k);return d?d.mood:null;}).filter(x=>x!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
 function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
@@ -518,7 +533,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,importance:h.importance||1}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitLog(dk,hid,val){ push('log', {day:dk,habit_id:hid,value:val}); }
 function commitDay(dk,mood,note){ push('day', {day:dk,mood,note}); }
@@ -581,23 +596,42 @@ function renderStreaks(){
   el.innerHTML=state.habits.map(h=>({h,s:streak(h)})).sort((a,b)=>b.s-a.s)
     .map(({h,s})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}</span></li>`).join('');
 }
-let cComp=null,cMood=null;
+let cComp=null,cMood=null,compRange='month';
+// Jours couverts par la période choisie
+function rangeKeys(r){
+  if(r==='week') return lastNKeys(7);
+  if(r==='3m')   return lastNKeys(90);
+  if(r==='6m')   return lastNKeys(180);
+  // 'month' = du 1er du mois en cours à aujourd'hui (temps réel)
+  const now=new Date(); const out=[];
+  for(let d=1; d<=now.getDate(); d++) out.push(keyOf(new Date(now.getFullYear(), now.getMonth(), d)));
+  return out;
+}
 function renderCharts(){
   if(typeof Chart==='undefined')return;
   Chart.defaults.font.family="'Space Mono',monospace"; Chart.defaults.font.size=10; Chart.defaults.color='#8A8FA0';
   const rtl=(lang==='ar');
-  const k30=lastNKeys(30), comp=k30.map(k=>Math.round(completion(k)*100));
-  const l30=k30.map(k=>{const d=parseKey(k);return d.getDate()===1?I18N[lang].months[d.getMonth()]:d.getDate();});
+  const keys=rangeKeys(compRange);
+  const labels=keys.map(k=>{const d=parseKey(k);return d.getDate()===1?I18N[lang].months[d.getMonth()]:d.getDate();});
+  const long=keys.length>40;
+
+  // Taux de complétion (pondéré par importance) + moyenne de la période
+  const comp=keys.map(k=>Math.round(completion(k)*100));
+  const avg=comp.length?Math.round(comp.reduce((a,b)=>a+b,0)/comp.length):0;
+  const av=document.getElementById('rangeAvg'); if(av) av.textContent=avg+'%';
+
   if(cComp)cComp.destroy();
-  cComp=new Chart(document.getElementById('chartComp'),{type:'bar',
-    data:{labels:l30,datasets:[{data:comp,backgroundColor:'#C0295A',borderRadius:3,barPercentage:.7}]},
+  cComp=new Chart(document.getElementById('chartComp'),{type:'line',
+    data:{labels,datasets:[{data:comp,borderColor:'#C0295A',backgroundColor:'rgba(192,41,90,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:long?0:3,pointBackgroundColor:'#C0295A'}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}},
-      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}}}}});
-  const k14=lastNKeys(14), mood=k14.map(k=>{const d=dayRO(k);return d&&d.mood!=null?d.mood:null;}), l14=k14.map(k=>parseKey(k).getDate());
+      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
+
+  // Humeur sur la même période
+  const mood=keys.map(k=>{const d=dayRO(k);return d&&d.mood!=null?d.mood:null;});
   if(cMood)cMood.destroy();
   cMood=new Chart(document.getElementById('chartMood'),{type:'line',
-    data:{labels:l14,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:3,pointBackgroundColor:'#2E5E9C'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false}}}}});
+    data:{labels,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:long?0:3,pointBackgroundColor:'#2E5E9C'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
 }
 function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); }
 
@@ -626,8 +660,10 @@ function renderSwatches(){ document.getElementById('hSwatches').innerHTML=PALETT
 function renderHabitTable(){
   const el=document.getElementById('habitTable');
   if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
-  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th></th></tr></thead><tbody>`+
-    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td><button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
+  const impSel=(h)=>{ const v=h.importance||1; return `<select class="impsel" data-himp="${h.id}">`+
+    [[1,'1 · 100%'],[2,'2 · 50%'],[3,'3 · 25%']].map(([n,lbl])=>`<option value="${n}"${v===n?' selected':''}>${lbl}</option>`).join('')+`</select>`; };
+  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th></th></tr></thead><tbody>`+
+    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${impSel(h)}</td><td><button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
 }
 function renderHabits(){ renderSwatches(); renderHabitTable(); }
 
@@ -640,6 +676,11 @@ function switchView(v){
   if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits();
 }
 document.querySelectorAll('.tab').forEach(x=>x.addEventListener('click',()=>switchView(x.dataset.view)));
+document.getElementById('rangeSel').addEventListener('click',e=>{ const b=e.target.closest('[data-range]'); if(!b)return;
+  compRange=b.dataset.range;
+  document.querySelectorAll('#rangeSel button').forEach(x=>x.setAttribute('aria-pressed', x.dataset.range===compRange));
+  renderCharts();
+});
 
 document.getElementById('langsw').addEventListener('click',e=>{ const b=e.target.closest('[data-lang]'); if(!b)return;
   lang=b.dataset.lang; KV.set(LANGKEY,lang); applyI18n();
@@ -674,14 +715,20 @@ document.getElementById('hType').addEventListener('change',e=>{const q=e.target.
 document.getElementById('hAdd').addEventListener('click',()=>{
   const name=document.getElementById('hName').value.trim(); if(!name){document.getElementById('hName').focus();return;}
   const type=document.getElementById('hType').value;
-  const h={id:id(),name,type,color:newColor,unit:type==='quant'?(document.getElementById('hUnit').value.trim()||''):'',target:type==='quant'?(Number(document.getElementById('hTarget').value)||1):1};
+  const importance=Number(document.getElementById('hImp').value)||1;
+  const h={id:id(),name,type,color:newColor,unit:type==='quant'?(document.getElementById('hUnit').value.trim()||''):'',target:type==='quant'?(Number(document.getElementById('hTarget').value)||1):1,importance};
   state.habits.push(h); saveLocal(); commitHabit(h);
-  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value='';
+  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hImp').value='1';
   renderHabits();
 });
 document.getElementById('habitTable').addEventListener('click',e=>{const del=e.target.closest('[data-hdel]');if(!del)return;
   const h=state.habits.find(x=>x.id===del.dataset.hdel);
   if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
+document.getElementById('habitTable').addEventListener('change',e=>{ const s=e.target.closest('[data-himp]'); if(!s)return;
+  const h=state.habits.find(x=>x.id===s.dataset.himp); if(!h)return;
+  h.importance=Number(s.value)||1; saveLocal(); commitHabit(h);
+  const cur=document.querySelector('.tab[aria-selected="true"]').dataset.view; if(cur==='dash') renderDash();
+});
 
 /* connexion / déconnexion */
 document.getElementById('liSignin').addEventListener('click',()=>doAuth('signin'));
