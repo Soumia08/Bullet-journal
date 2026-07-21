@@ -624,14 +624,14 @@ function renderCharts(){
   cComp=new Chart(document.getElementById('chartComp'),{type:'line',
     data:{labels,datasets:[{data:comp,borderColor:'#C0295A',backgroundColor:'rgba(192,41,90,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:long?0:3,pointBackgroundColor:'#C0295A'}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:6}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}},
-      scales:{y:{beginAtZero:true,max:100,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{callback:v=>v+'%'}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
+      scales:{y:{beginAtZero:true,max:105,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:10,callback:v=>v<=100?v+'%':''}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
 
   // Humeur sur la même période
   const mood=keys.map(k=>{const d=dayRO(k);return d&&d.mood!=null?d.mood:null;});
   if(cMood)cMood.destroy();
   cMood=new Chart(document.getElementById('chartMood'),{type:'line',
     data:{labels,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:long?0:3,pointBackgroundColor:'#2E5E9C'}]},
-    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:6}},plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:6}},plugins:{legend:{display:false}},scales:{y:{min:1,max:5.5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1,callback:v=>v<=5?v:''}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
 }
 function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); }
 
