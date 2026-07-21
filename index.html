@@ -361,7 +361,7 @@ let supa = null, UID = null, MODE = 'local';   // 'supabase' une fois connecté(
 /* ---- i18n ---- */
 const I18N = {
   fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes',
-    matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'intensité = valeur / objectif',
+    matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'remplissage = valeur / objectif',
     comp_title:'Taux de complétion', mood_title:'Humeur', streaks_title:'Séries en cours', r_week:'Semaine', r_month:'Mois en cours', r_3m:'3 mois', r_6m:'6 mois', avg:'moyenne',
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
@@ -377,7 +377,7 @@ const I18N = {
     days:['dim','lun','mar','mer','jeu','ven','sam'],
     months:['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'], loc:'fr-FR' },
   en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits',
-    matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'intensity = value / target',
+    matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'fill = value / target',
     comp_title:'Completion rate', mood_title:'Mood', streaks_title:'Current streaks', r_week:'Week', r_month:'This month', r_3m:'3 months', r_6m:'6 months', avg:'average',
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
@@ -393,7 +393,7 @@ const I18N = {
     days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], loc:'en-US' },
   ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات',
-    matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'الكثافة = القيمة / الهدف',
+    matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'التعبئة = القيمة / الهدف',
     comp_title:'نسبة الإنجاز', mood_title:'المزاج', streaks_title:'السلاسل الجارية', r_week:'أسبوع', r_month:'هذا الشهر', r_3m:'3 أشهر', r_6m:'6 أشهر', avg:'المتوسط',
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
@@ -514,11 +514,19 @@ function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // (4 ajouté après coup pour le 75% ; les niveaux 1/2/3 gardent leur sens d'origine)
 const WEIGHT={1:1,4:0.75,2:0.5,3:0.25};
 function weightOf(h){ return WEIGHT[h.importance||1] || 1; }
-// Taux de complétion pondéré par l'importance des habitudes
+// Progression d'une habitude sur un jour, entre 0 et 1
+// binaire : 0 ou 1 ; quantifiée : valeur/objectif plafonné à 1 (ex. 6h/8h = 0.75)
+function progress(h,v){
+  if(v==null||v===false) return 0;
+  if(h.type==='binary') return v?1:0;
+  const f=Number(v)/Number(h.target||1);
+  return Math.max(0, Math.min(1, isNaN(f)?0:f));
+}
+// Taux de complétion pondéré par l'importance ET proportionnel à la progression
 function completion(k){
   if(!state.habits.length) return 0;
   let tot=0, done=0;
-  for(const h of state.habits){ const w=weightOf(h); tot+=w; if(isDone(h,hv(k,h.id))) done+=w; }
+  for(const h of state.habits){ const w=weightOf(h); tot+=w; done += w*progress(h, hv(k,h.id)); }
   return tot ? done/tot : 0;
 }
 function streak(h){ let n=0; const d=new Date(); for(;;){ if(isDone(h,hv(keyOf(d),h.id))){n++;d.setDate(d.getDate()-1);}else break; } return n; }
@@ -584,9 +592,19 @@ function renderMatrix(){
   let rows='';
   for(const h of state.habits){
     let c=`<td class="mrow-label"><span class="swatch" style="background:${h.color}"></span>${esc(h.name)}</td>`;
-    for(const k of keys){ const v=hv(k,h.id); const done=isDone(h,v); let st='';
-      if(done){ let inten=1; if(h.type==='quant')inten=Math.min(1,Number(v)/Number(h.target||1)); st=`background:${rgba(h.color,.45+.55*inten)}`; }
-      c+=`<td class="mcell"><div class="mdot${done?' done':''}" style="${st}" title="${esc(h.name)} · ${k}"></div></td>`; }
+    for(const k of keys){
+      const v=hv(k,h.id);
+      let cls='mdot', st='', ttl=`${esc(h.name)} · ${k}`;
+      if(h.type==='binary'){
+        if(isDone(h,v)){ cls+=' done'; st=`background:${h.color}`; }
+      } else {
+        const num=(v==null||v==='')?0:Number(v), tgt=Number(h.target||1);
+        const f=Math.max(0,Math.min(1, tgt?num/tgt:0));
+        if(f>0){ const deg=Math.round(f*360); st=`background:conic-gradient(${h.color} 0 ${deg}deg, ${rgba(h.color,.16)} ${deg}deg 360deg);border-color:transparent`; }
+        if(num) ttl+=` · ${num}/${tgt}`;
+      }
+      c+=`<td class="mcell"><div class="${cls}" style="${st}" title="${ttl}"></div></td>`;
+    }
     rows+=`<tr>${c}</tr>`;
   }
   box.innerHTML=`<table class="mtable"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
