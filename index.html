@@ -332,11 +332,11 @@
         <div class="field"><label data-i18n="f_unit"></label><input class="text" id="hUnit" /></div>
         <div class="field"><label data-i18n="f_target"></label><input class="text" id="hTarget" type="number" min="1" /></div>
         <div class="field"><label data-i18n="f_importance"></label>
-          <select id="hImp"><option value="1">1 · 100%</option><option value="2">2 · 50%</option><option value="3">3 · 25%</option></select>
+          <select id="hImp"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
         </div>
         <div class="field"><label data-i18n="f_color"></label><div class="swatches" id="hSwatches"></div></div>
       </div>
-      <div style="margin-top:14px"><button class="btn" id="hAdd" data-i18n="create_habit"></button></div>
+      <div style="margin-top:14px"><button class="btn" id="hAdd" data-i18n="create_habit"></button> <button class="link" id="hCancel" style="display:none" data-i18n="cancel"></button></div>
     </div>
     <div class="card"><h2 data-i18n="mine"></h2><table class="htable" id="habitTable"></table></div>
   </section>
@@ -367,7 +367,7 @@ const I18N = {
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
     f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', create_habit:"Créer l'habitude", mine:'Mes habitudes',
-    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.',
+    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
     tile_habits:'habitudes suivies', tile_done:"complété aujourd'hui", tile_streak:'meilleure série (j)', tile_mood:'humeur moy. 7j',
@@ -383,7 +383,7 @@ const I18N = {
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
     f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', create_habit:'Create habit', mine:'My habits',
-    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal',
+    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
     tile_habits:'habits tracked', tile_done:'completed today', tile_streak:'best streak (d)', tile_mood:'avg mood 7d',
@@ -399,7 +399,7 @@ const I18N = {
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
     f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', create_habit:'إنشاء العادة', mine:'عاداتي',
-    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف',
+    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
     tile_habits:'عادات متابَعة', tile_done:'أُنجز اليوم', tile_streak:'أطول سلسلة (يوم)', tile_mood:'متوسط المزاج 7ي',
@@ -661,9 +661,9 @@ function renderHabitTable(){
   const el=document.getElementById('habitTable');
   if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
   const impSel=(h)=>{ const v=h.importance||1; return `<select class="impsel" data-himp="${h.id}">`+
-    [[1,'1 · 100%'],[2,'2 · 50%'],[3,'3 · 25%']].map(([n,lbl])=>`<option value="${n}"${v===n?' selected':''}>${lbl}</option>`).join('')+`</select>`; };
+    [1,2,3].map(n=>`<option value="${n}"${v===n?' selected':''}>${n}</option>`).join('')+`</select>`; };
   el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th></th></tr></thead><tbody>`+
-    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${impSel(h)}</td><td><button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
+    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${Math.round((WEIGHT[h.importance||1]||1)*100)}%</td><td><button class="link" data-hedit="${h.id}">${t('edit')}</button> · <button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
 }
 function renderHabits(){ renderSwatches(); renderHabitTable(); }
 
@@ -712,18 +712,60 @@ document.getElementById('dayNext').addEventListener('click',()=>{const d=parseKe
 
 document.getElementById('hSwatches').addEventListener('click',e=>{const b=e.target.closest('[data-color]');if(!b)return;newColor=b.dataset.color;renderSwatches();});
 document.getElementById('hType').addEventListener('change',e=>{const q=e.target.value==='quant';document.getElementById('hUnit').disabled=!q;document.getElementById('hTarget').disabled=!q;});
+
+let editingId=null;
+function resetHabitForm(){
+  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hImp').value='1';
+  document.getElementById('hType').value='binary'; document.getElementById('hUnit').disabled=true; document.getElementById('hTarget').disabled=true;
+  newColor=PALETTE[0];
+}
+function exitEdit(){
+  editingId=null;
+  document.querySelector('#view-habits h2').textContent=t('new_habit');
+  document.getElementById('hAdd').textContent=t('create_habit');
+  document.getElementById('hCancel').style.display='none';
+  resetHabitForm(); renderSwatches();
+}
+function startEdit(hid){
+  const h=state.habits.find(x=>x.id===hid); if(!h)return;
+  editingId=hid;
+  document.getElementById('hName').value=h.name;
+  document.getElementById('hType').value=h.type;
+  const q=h.type==='quant';
+  document.getElementById('hUnit').disabled=!q; document.getElementById('hTarget').disabled=!q;
+  document.getElementById('hUnit').value=h.unit||''; document.getElementById('hTarget').value=q?(h.target||1):'';
+  document.getElementById('hImp').value=String(h.importance||1);
+  newColor=h.color; renderSwatches();
+  document.querySelector('#view-habits h2').textContent=t('edit_habit');
+  document.getElementById('hAdd').textContent=t('save_habit');
+  document.getElementById('hCancel').style.display='';
+  document.getElementById('hName').focus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('hCancel').addEventListener('click',exitEdit);
+
 document.getElementById('hAdd').addEventListener('click',()=>{
   const name=document.getElementById('hName').value.trim(); if(!name){document.getElementById('hName').focus();return;}
   const type=document.getElementById('hType').value;
   const importance=Number(document.getElementById('hImp').value)||1;
-  const h={id:id(),name,type,color:newColor,unit:type==='quant'?(document.getElementById('hUnit').value.trim()||''):'',target:type==='quant'?(Number(document.getElementById('hTarget').value)||1):1,importance};
-  state.habits.push(h); saveLocal(); commitHabit(h);
-  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hImp').value='1';
+  const unit=type==='quant'?(document.getElementById('hUnit').value.trim()||''):'';
+  const target=type==='quant'?(Number(document.getElementById('hTarget').value)||1):1;
+  if(editingId){
+    const h=state.habits.find(x=>x.id===editingId); if(h){ Object.assign(h,{name,type,unit,target,color:newColor,importance}); saveLocal(); commitHabit(h); }
+    exitEdit();
+  } else {
+    const h={id:id(),name,type,color:newColor,unit,target,importance};
+    state.habits.push(h); saveLocal(); commitHabit(h);
+    resetHabitForm();
+  }
   renderHabits();
 });
-document.getElementById('habitTable').addEventListener('click',e=>{const del=e.target.closest('[data-hdel]');if(!del)return;
+document.getElementById('habitTable').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-hedit]');
+  if(ed){ startEdit(ed.dataset.hedit); return; }
+  const del=e.target.closest('[data-hdel]'); if(!del)return;
   const h=state.habits.find(x=>x.id===del.dataset.hdel);
-  if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
+  if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ if(editingId===del.dataset.hdel) exitEdit(); state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
 document.getElementById('habitTable').addEventListener('change',e=>{ const s=e.target.closest('[data-himp]'); if(!s)return;
   const h=state.habits.find(x=>x.id===s.dataset.himp); if(!h)return;
   h.importance=Number(s.value)||1; saveLocal(); commitHabit(h);
