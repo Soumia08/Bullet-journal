@@ -332,7 +332,7 @@
         <div class="field"><label data-i18n="f_unit"></label><input class="text" id="hUnit" /></div>
         <div class="field"><label data-i18n="f_target"></label><input class="text" id="hTarget" type="number" min="1" /></div>
         <div class="field"><label data-i18n="f_importance"></label>
-          <select id="hImp"><option value="1">100%</option><option value="2">50%</option><option value="3">25%</option></select>
+          <select id="hImp"><option value="1">100%</option><option value="4">75%</option><option value="2">50%</option><option value="3">25%</option></select>
         </div>
         <div class="field"><label data-i18n="f_color"></label><div class="swatches" id="hSwatches"></div></div>
       </div>
@@ -510,8 +510,9 @@ function dayRO(k){return state.days[k]||null;}
 /* ---- calculs ---- */
 function isDone(h,v){ if(v==null||v===false)return false; if(h.type==='binary')return !!v; return Number(v)>=Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
-// Poids selon l'importance : 1 -> 100%, 2 -> 50%, 3 -> 25%
-const WEIGHT={1:1,2:0.5,3:0.25};
+// Poids selon l'importance : 1 -> 100%, 4 -> 75%, 2 -> 50%, 3 -> 25%
+// (4 ajouté après coup pour le 75% ; les niveaux 1/2/3 gardent leur sens d'origine)
+const WEIGHT={1:1,4:0.75,2:0.5,3:0.25};
 function weightOf(h){ return WEIGHT[h.importance||1] || 1; }
 // Taux de complétion pondéré par l'importance des habitudes
 function completion(k){
