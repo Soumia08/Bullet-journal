@@ -248,6 +248,17 @@
     .qunit { min-width:44px; }
     .moods .mood { font-size:20px; padding:9px 0; }
     .dayhead input[type=date] { flex:1; }
+    /* Tableau des habitudes -> cartes empilées */
+    .htable thead { display:none; }
+    .htable, .htable tbody, .htable tr, .htable td { display:block; width:100%; }
+    .htable tr { border:1.5px solid var(--rule); border-radius:10px; padding:8px 12px; margin-bottom:10px; }
+    .htable tr.hoff { opacity:.6; }
+    .htable tr.hoff td { opacity:1; }
+    .htable td { border:none; padding:6px 0; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14px; }
+    .htable td::before { content:attr(data-label); font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); }
+    .htable td.acts { justify-content:flex-end; gap:16px; border-top:1px dashed var(--rule); margin-top:6px; padding-top:10px; }
+    .htable td.acts::before { content:''; }
+    .htable td .nm { font-weight:600; }
   }
   @media (max-width:360px){
     .tiles { grid-template-columns:1fr; }
@@ -742,9 +753,16 @@ function renderSwatches(){ document.getElementById('hSwatches').innerHTML=PALETT
 function renderHabitTable(){
   const el=document.getElementById('habitTable');
   if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
-  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th>${t('th_active')}</th><th></th></tr></thead><tbody>`+
+  el.innerHTML=`<thead><tr><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th>${t('th_active')}</th><th></th></tr></thead><tbody>`+
     state.habits.map(h=>{ const on=h.active!==false;
-      return `<tr class="${on?'':'hoff'}"><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${Math.round((WEIGHT[h.importance||1]||1)*100)}%</td><td><button class="toggle${on?' on':''}" data-hactive="${h.id}">${on?'ON':'OFF'}</button></td><td><button class="link" data-hedit="${h.id}">${t('edit')}</button> · <button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`;
+      return `<tr class="${on?'':'hoff'}">`+
+        `<td data-label="${t('th_name')}"><span class="nm"><span class="cdot" style="background:${h.color}"></span> ${esc(h.name)}</span></td>`+
+        `<td data-label="${t('th_type')}">${h.type==='binary'?t('t_binary'):t('t_quant')}</td>`+
+        `<td data-label="${t('th_target')}">${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td>`+
+        `<td data-label="${t('th_imp')}">${Math.round((WEIGHT[h.importance||1]||1)*100)}%</td>`+
+        `<td data-label="${t('th_active')}"><button class="toggle${on?' on':''}" data-hactive="${h.id}">${on?'ON':'OFF'}</button></td>`+
+        `<td class="acts"><button class="link" data-hedit="${h.id}">${t('edit')}</button> · <button class="link" data-hdel="${h.id}">${t('delete')}</button></td>`+
+      `</tr>`;
     }).join('')+'</tbody>';
 }
 function renderHabits(){ renderSwatches(); renderDaySel(); renderHabitTable(); }
