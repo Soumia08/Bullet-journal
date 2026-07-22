@@ -181,6 +181,10 @@
   .htable td { padding:10px; border-bottom:1px dashed var(--rule); font-size:14px; }
   .impsel { font-family:var(--mono); font-size:12px; padding:5px 7px; border:1.5px solid var(--rule); border-radius:7px; background:var(--paper-2); color:var(--ink); }
   .impsel:focus { outline:none; border-color:var(--berry); }
+  .toggle { font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.05em; border:1.5px solid var(--rule);
+    background:var(--paper-2); color:var(--ink-3); padding:4px 10px; border-radius:20px; cursor:pointer; min-width:42px; }
+  .toggle.on { border-color:var(--ok); color:#fff; background:var(--ok); }
+  .htable tr.hoff td:not(:last-child):not(:nth-last-child(2)) { opacity:.45; }
   .htable .cdot { width:11px; height:11px; border-radius:50%; display:inline-block; }
   .link { border:none; background:none; color:var(--ink-3); font-family:var(--mono); font-size:11px; cursor:pointer; text-decoration:underline; }
   .link:hover { color:var(--berry); }
@@ -366,7 +370,7 @@ const I18N = {
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
-    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', create_habit:"Créer l'habitude", mine:'Mes habitudes',
+    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
     th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
@@ -382,7 +386,7 @@ const I18N = {
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
-    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', create_habit:'Create habit', mine:'My habits',
+    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
     th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
@@ -398,7 +402,7 @@ const I18N = {
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
-    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', create_habit:'إنشاء العادة', mine:'عاداتي',
+    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
     th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
@@ -422,13 +426,13 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 /* ---- Supabase : lecture de l'état complet ---- */
 async function supaGetState(){
   const [h,l,d,tk] = await Promise.all([
-    supa.from('habits').select('id,name,type,unit,target,color,position,importance').eq('archived',false).order('position'),
+    supa.from('habits').select('id,name,type,unit,target,color,position,importance,active').eq('archived',false).order('position'),
     supa.from('logs').select('day,habit_id,value'),
     supa.from('days').select('day,mood,note'),
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color,importance:Number(x.importance||1)}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color,importance:Number(x.importance||1),active:x.active!==false}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -441,7 +445,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color,importance:p.importance||1}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color,importance:p.importance||1,active:p.active!==false}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -514,6 +518,8 @@ function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // (4 ajouté après coup pour le 75% ; les niveaux 1/2/3 gardent leur sens d'origine)
 const WEIGHT={1:1,4:0.75,2:0.5,3:0.25};
 function weightOf(h){ return WEIGHT[h.importance||1] || 1; }
+// Habitudes actives (ON). Une habitude OFF (active===false) est ignorée partout sauf dans la gestion.
+function activeHabits(){ return state.habits.filter(h=>h.active!==false); }
 // Progression d'une habitude sur un jour, entre 0 et 1
 // binaire : 0 ou 1 ; quantifiée : valeur/objectif plafonné à 1 (ex. 6h/8h = 0.75)
 function progress(h,v){
@@ -524,9 +530,10 @@ function progress(h,v){
 }
 // Taux de complétion pondéré par l'importance ET proportionnel à la progression
 function completion(k){
-  if(!state.habits.length) return 0;
+  const hs=activeHabits();
+  if(!hs.length) return 0;
   let tot=0, done=0;
-  for(const h of state.habits){ const w=weightOf(h); tot+=w; done += w*progress(h, hv(k,h.id)); }
+  for(const h of hs){ const w=weightOf(h); tot+=w; done += w*progress(h, hv(k,h.id)); }
   return tot ? done/tot : 0;
 }
 function streak(h){ let n=0; const d=new Date(); for(;;){ if(isDone(h,hv(keyOf(d),h.id))){n++;d.setDate(d.getDate()-1);}else break; } return n; }
@@ -542,7 +549,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,importance:h.importance||1}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,importance:h.importance||1,active:h.active!==false}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitLog(dk,hid,val){ push('log', {day:dk,habit_id:hid,value:val}); }
 function commitDay(dk,mood,note){ push('day', {day:dk,mood,note}); }
@@ -572,10 +579,11 @@ function renderToday(){
 }
 
 function renderTiles(){
-  const streaks=state.habits.map(streak); const best=streaks.length?Math.max(...streaks):0;
+  const hs=activeHabits();
+  const streaks=hs.map(streak); const best=streaks.length?Math.max(...streaks):0;
   const m=moodAvg(lastNKeys(7));
   const data=[
-    {n:state.habits.length,l:t('tile_habits')},
+    {n:hs.length,l:t('tile_habits')},
     {n:Math.round(completion(todayKey())*100)+'%',l:t('tile_done'),a:true},
     {n:best,l:t('tile_streak')},
     {n:m==null?'—':m.toFixed(1),l:t('tile_mood')} ];
@@ -583,14 +591,15 @@ function renderTiles(){
 }
 function renderMatrix(){
   const box=document.getElementById('matrix');
-  if(!state.habits.length){ box.innerHTML=`<p class="empty">${t('empty_no_habits')}</p>`; return; }
+  const hs=activeHabits();
+  if(!hs.length){ box.innerHTML=`<p class="empty">${t('empty_no_habits')}</p>`; return; }
   const keys=lastNKeys(35);
   let head='<tr><th></th>';
   keys.forEach(k=>{ const d=parseKey(k); const first=d.getDate()===1;
     head+=`<th class="mcol-head${first?' month':''}">${first?I18N[lang].months[d.getMonth()]:(d.getDay()===1?d.getDate():'')}</th>`; });
   head+='</tr>';
   let rows='';
-  for(const h of state.habits){
+  for(const h of hs){
     let c=`<td class="mrow-label"><span class="swatch" style="background:${h.color}"></span>${esc(h.name)}</td>`;
     for(const k of keys){
       const v=hv(k,h.id);
@@ -611,8 +620,9 @@ function renderMatrix(){
 }
 function renderStreaks(){
   const el=document.getElementById('streaks');
-  if(!state.habits.length){ el.innerHTML=`<li class="empty">—</li>`; return; }
-  el.innerHTML=state.habits.map(h=>({h,s:streak(h)})).sort((a,b)=>b.s-a.s)
+  const hs=activeHabits();
+  if(!hs.length){ el.innerHTML=`<li class="empty">—</li>`; return; }
+  el.innerHTML=hs.map(h=>({h,s:streak(h)})).sort((a,b)=>b.s-a.s)
     .map(({h,s})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}</span></li>`).join('');
 }
 let cComp=null,cMood=null,compRange='month';
@@ -659,9 +669,10 @@ const MOOD={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
 function renderDay(){
   document.getElementById('dayDate').value=curDay;
   const d=day(curDay), hl=document.getElementById('dayHabits');
-  if(!state.habits.length){ hl.innerHTML=`<li class="empty">${t('empty_create_first')}</li>`; }
+  const hs=activeHabits();
+  if(!hs.length){ hl.innerHTML=`<li class="empty">${t('empty_create_first')}</li>`; }
   else{
-    hl.innerHTML=state.habits.map(h=>{ const v=d.h[h.id];
+    hl.innerHTML=hs.map(h=>{ const v=d.h[h.id];
       if(h.type==='binary'){ const on=!!v;
         return `<li><button class="check${on?' on':''}" data-toggle="${h.id}" style="${on?'background:'+h.color:''}" aria-pressed="${on}">${on?'✓':''}</button><span class="hname">${esc(h.name)}</span></li>`; }
       const done=isDone(h,v);
@@ -679,10 +690,10 @@ function renderSwatches(){ document.getElementById('hSwatches').innerHTML=PALETT
 function renderHabitTable(){
   const el=document.getElementById('habitTable');
   if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
-  const impSel=(h)=>{ const v=h.importance||1; return `<select class="impsel" data-himp="${h.id}">`+
-    [1,2,3].map(n=>`<option value="${n}"${v===n?' selected':''}>${n}</option>`).join('')+`</select>`; };
-  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th></th></tr></thead><tbody>`+
-    state.habits.map(h=>`<tr><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${Math.round((WEIGHT[h.importance||1]||1)*100)}%</td><td><button class="link" data-hedit="${h.id}">${t('edit')}</button> · <button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`).join('')+'</tbody>';
+  el.innerHTML=`<thead><tr><th></th><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th>${t('th_active')}</th><th></th></tr></thead><tbody>`+
+    state.habits.map(h=>{ const on=h.active!==false;
+      return `<tr class="${on?'':'hoff'}"><td><span class="cdot" style="background:${h.color}"></span></td><td>${esc(h.name)}</td><td>${h.type==='binary'?t('t_binary'):t('t_quant')}</td><td>${h.type==='binary'?'—':h.target+' '+esc(h.unit)}</td><td>${Math.round((WEIGHT[h.importance||1]||1)*100)}%</td><td><button class="toggle${on?' on':''}" data-hactive="${h.id}">${on?'ON':'OFF'}</button></td><td><button class="link" data-hedit="${h.id}">${t('edit')}</button> · <button class="link" data-hdel="${h.id}">${t('delete')}</button></td></tr>`;
+    }).join('')+'</tbody>';
 }
 function renderHabits(){ renderSwatches(); renderHabitTable(); }
 
@@ -773,7 +784,7 @@ document.getElementById('hAdd').addEventListener('click',()=>{
     const h=state.habits.find(x=>x.id===editingId); if(h){ Object.assign(h,{name,type,unit,target,color:newColor,importance}); saveLocal(); commitHabit(h); }
     exitEdit();
   } else {
-    const h={id:id(),name,type,color:newColor,unit,target,importance};
+    const h={id:id(),name,type,color:newColor,unit,target,importance,active:true};
     state.habits.push(h); saveLocal(); commitHabit(h);
     resetHabitForm();
   }
@@ -782,6 +793,8 @@ document.getElementById('hAdd').addEventListener('click',()=>{
 document.getElementById('habitTable').addEventListener('click',e=>{
   const ed=e.target.closest('[data-hedit]');
   if(ed){ startEdit(ed.dataset.hedit); return; }
+  const tg=e.target.closest('[data-hactive]');
+  if(tg){ const h=state.habits.find(x=>x.id===tg.dataset.hactive); if(h){ h.active=(h.active===false); saveLocal(); commitHabit(h); renderHabits(); renderDash(); } return; }
   const del=e.target.closest('[data-hdel]'); if(!del)return;
   const h=state.habits.find(x=>x.id===del.dataset.hdel);
   if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ if(editingId===del.dataset.hdel) exitEdit(); state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
