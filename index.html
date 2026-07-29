@@ -201,7 +201,9 @@
   .hlist li.skipped .hname, .hlist li.rest .hname { color:var(--ink-3); }
   .hlist li.skipped .check, .hlist li.skipped .qin { opacity:.4; }
   .daytag { font-family:var(--mono); font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3);
-    border:1px solid var(--rule); border-radius:20px; padding:2px 7px; margin-inline-start:6px; }
+    border:1px solid var(--rule); border-radius:20px; padding:2px 7px; margin-inline-start:6px; background:transparent; }
+  .daytag.restdo { cursor:pointer; }
+  .daytag.restdo:hover { border-color:var(--berry); color:var(--berry); }
   .htable .cdot { width:11px; height:11px; border-radius:50%; display:inline-block; }
   .link { border:none; background:none; color:var(--ink-3); font-family:var(--mono); font-size:11px; cursor:pointer; text-decoration:underline; }
   .link:hover { color:var(--berry); }
@@ -401,7 +403,7 @@ const I18N = {
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
     f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
-    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour',
+    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
     tile_habits:'habitudes suivies', tile_done:"complété aujourd'hui", tile_streak:'meilleure série (j)', tile_mood:'humeur moy. 7j',
@@ -417,7 +419,7 @@ const I18N = {
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
     f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
-    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day',
+    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
     tile_habits:'habits tracked', tile_done:'completed today', tile_streak:'best streak (d)', tile_mood:'avg mood 7d',
@@ -433,7 +435,7 @@ const I18N = {
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
     f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
-    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم',
+    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
     tile_habits:'عادات متابَعة', tile_done:'أُنجز اليوم', tile_streak:'أطول سلسلة (يوم)', tile_mood:'متوسط المزاج 7ي',
@@ -735,7 +737,7 @@ function renderDay(){
       const scheduled = activeDaysOf(h).includes(wd);   // applicable aujourd'hui selon planning
       const rest = !scheduled && !skipped && !hasLog(h,v); // jour "repos" (hors planning, non renseignée)
       const liCls = (skipped?'skipped ':'')+(rest?'rest':'');
-      const tag = skipped ? `<small class="daytag">${t('skipped')}</small>` : (rest? `<small class="daytag">${t('rest')}</small>` : '');
+      const tag = skipped ? `<small class="daytag">${t('skipped')}</small>` : (rest? `<button class="daytag restdo" data-restdo="${h.id}" title="${t('rest_do')}">${t('rest')}</button>` : '');
       // bouton skip (⊘) : neutralise / réactive ce jour
       const skipBtn = `<button class="skipbtn${skipped?' on':''}" data-skip="${h.id}" title="${t('skip_day')}">⊘</button>`;
       if(h.type==='binary'){ const on=isDone(h,v);
@@ -797,6 +799,11 @@ document.getElementById('view-day').addEventListener('click',e=>{ const d=day(cu
   if(tog){ const hid=tog.dataset.toggle; const h=state.habits.find(x=>x.id===hid);
     const nowDone=isDone(h,d.h[hid]); d.h[hid]=nowDone?false:true;
     saveLocalSoon(); commitLog(curDay,hid,d.h[hid]?1:null); renderDay(); return; }
+  const rd=e.target.closest('[data-restdo]');
+  if(rd){ const hid=rd.dataset.restdo; const h=state.habits.find(x=>x.id===hid);
+    if(h && h.type==='binary'){ d.h[hid]=true; saveLocalSoon(); commitLog(curDay,hid,1); renderDay(); }
+    else { const inp=document.querySelector('[data-quant="'+hid+'"]'); if(inp){ inp.focus(); } }
+    return; }
   const sk=e.target.closest('[data-skip]');
   if(sk){ const hid=sk.dataset.skip;
     if(d.h[hid]===SKIP){ d.h[hid]=null; commitLog(curDay,hid,null); }      // réactiver ce jour
