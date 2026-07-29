@@ -82,7 +82,11 @@
 
   .matrix { overflow-x:auto; padding-bottom:12px; -webkit-overflow-scrolling:touch; }
   .mtable { border-collapse:collapse; }
-  .mrow-label { font-size:13px; font-weight:500; padding-inline:2px 14px; white-space:nowrap; text-align:start; }
+  .mrow-label { font-size:13px; font-weight:500; padding-inline:2px 14px; white-space:nowrap; text-align:start;
+    position:sticky; left:0; z-index:2; background:var(--paper-2); box-shadow:8px 0 8px -6px rgba(0,0,0,.08); }
+  .mtable thead th:first-child { position:sticky; left:0; z-index:3; background:var(--paper-2); }
+  [dir="rtl"] .mrow-label { left:auto; right:0; box-shadow:-8px 0 8px -6px rgba(0,0,0,.08); }
+  [dir="rtl"] .mtable thead th:first-child { left:auto; right:0; }
   .mrow-label .swatch { display:inline-block; width:8px; height:8px; border-radius:50%; margin-inline-end:7px; vertical-align:middle; }
   .mcell { width:22px; height:22px; text-align:center; padding:0; }
   .mdot { width:13px; height:13px; border-radius:50%; margin:0 auto; border:1.5px solid var(--dot); background:transparent; }
@@ -668,7 +672,8 @@ function renderMatrix(){
       } else {
         const num=(v==null||v==='')?0:Number(v), tgt=Number(h.target||1);
         const f=Math.max(0,Math.min(1, tgt?num/tgt:0));
-        if(f>0){ const deg=Math.round(f*360); st=`background:conic-gradient(${h.color} 0 ${deg}deg, ${rgba(h.color,.16)} ${deg}deg 360deg);border-color:transparent`; }
+        if(f>=1){ cls+=' done'; st=`background:${h.color}`; }
+        else if(f>0){ const pct=Math.round(f*100); st=`background:linear-gradient(to top, ${h.color} 0 ${pct}%, transparent ${pct}% 100%)`; }
         if(num) ttl+=` · ${num}/${tgt}`;
       }
       c+=`<td class="mcell"><div class="${cls}" style="${st}" title="${ttl}"></div></td>`;
