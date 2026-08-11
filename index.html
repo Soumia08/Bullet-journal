@@ -134,6 +134,7 @@
   .streaks .sw { width:9px; height:9px; border-radius:50%; flex:none; }
   .streaks .nm { flex:1; font-size:14px; }
   .streaks .v { font-family:var(--mono); font-weight:700; font-size:14px; }
+  .streaks .v .pend { font-weight:400; font-size:10px; color:var(--ink-3); letter-spacing:.02em; }
 
   .dayhead { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
   .dayhead input[type=date] { font-family:var(--mono); font-size:13px; padding:8px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
@@ -407,7 +408,7 @@ const I18N = {
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
     f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
-    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos',
+    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos', pending_today:"aujourd'hui en attente",
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
     tile_habits:'habitudes suivies', tile_done:"complété aujourd'hui", tile_streak:'meilleure série (j)', tile_mood:'humeur moy. 7j',
@@ -423,7 +424,7 @@ const I18N = {
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
     f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
-    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway',
+    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway', pending_today:'today pending',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
     tile_habits:'habits tracked', tile_done:'completed today', tile_streak:'best streak (d)', tile_mood:'avg mood 7d',
@@ -439,7 +440,7 @@ const I18N = {
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
     f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
-    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة',
+    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة', pending_today:'اليوم قيد الانتظار',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
     tile_habits:'عادات متابَعة', tile_done:'أُنجز اليوم', tile_streak:'أطول سلسلة (يوم)', tile_mood:'متوسط المزاج 7ي',
@@ -587,13 +588,18 @@ function completion(k){
   }
   return tot ? done/tot : 0;
 }
-function streak(h){ let n=0; const d=new Date();
+function streak(h){
+  let n=0; const d=new Date(); const today=keyOf(d);
   for(let i=0;i<400;i++){ const k=keyOf(d);
-    if(!counts(h,k)){ d.setDate(d.getDate()-1); continue; }   // jour neutre -> on saute
-    if(isDone(h,hv(k,h.id))){ n++; d.setDate(d.getDate()-1); } else break;
+    if(!counts(h,k)){ d.setDate(d.getDate()-1); continue; }        // inactif / skip / hors-planning -> neutre
+    if(isDone(h,hv(k,h.id))){ n++; d.setDate(d.getDate()-1); continue; }
+    if(k===today){ d.setDate(d.getDate()-1); continue; }           // jour en cours non fini -> ignoré, pas une rupture
+    break;                                                          // vraie rupture (jour échu, actif, non skip, non validé)
   }
   return n;
 }
+// Le jour en cours reste-t-il à faire ? (jour actif, non skip, pas encore validé)
+function todayPending(h){ const k=todayKey(); return counts(h,k) && !isDone(h,hv(k,h.id)); }
 function moodAvg(keys){ const v=keys.map(k=>{const d=dayRO(k);return d?d.mood:null;}).filter(x=>x!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
 function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -686,8 +692,8 @@ function renderStreaks(){
   const el=document.getElementById('streaks');
   const hs=activeHabits();
   if(!hs.length){ el.innerHTML=`<li class="empty">—</li>`; return; }
-  el.innerHTML=hs.map(h=>({h,s:streak(h)})).sort((a,b)=>b.s-a.s)
-    .map(({h,s})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}</span></li>`).join('');
+  el.innerHTML=hs.map(h=>({h,s:streak(h),p:todayPending(h)})).sort((a,b)=>b.s-a.s)
+    .map(({h,s,p})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}${p?` <small class="pend">· ${t('pending_today')}</small>`:''}</span></li>`).join('');
 }
 let cComp=null,cMood=null,compRange='month';
 // Jours couverts par la période choisie
