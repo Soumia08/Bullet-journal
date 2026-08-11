@@ -149,6 +149,12 @@
   .check:active { transform:scale(.88); }
   .hname { flex:1; font-size:15px; }
   .hname small { font-family:var(--mono); color:var(--ink-3); font-size:11px; }
+  .stat { font-family:var(--mono); font-size:9px; text-transform:uppercase; letter-spacing:.06em; border-radius:20px; padding:2px 7px; border:1px solid; white-space:nowrap; }
+  .stat.held { color:var(--ink-2); border-color:var(--rule); }
+  .stat.done { color:var(--ok); border-color:var(--ok); }
+  .stat.over { color:var(--berry); border-color:var(--berry); }
+  .hname .minlbl { color:var(--ink-3); }
+  .streaks .stat, .streaks .pend { margin-inline-end:10px; }
   .qin { width:70px; font-family:var(--mono); font-size:14px; padding:6px 8px; border:1.5px solid var(--rule); border-radius:7px; background:var(--paper-2); color:var(--ink); text-align:end; }
   .qunit { font-family:var(--mono); font-size:11px; color:var(--ink-3); min-width:52px; }
 
@@ -169,7 +175,7 @@
   textarea { min-height:88px; }
   input.text:focus, textarea:focus, .qin:focus { outline:none; border-color:var(--berry); }
 
-  .mform { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
+  .mform { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto; gap:10px; align-items:end; }
   @media (max-width:720px){ .mform{ grid-template-columns:1fr 1fr;} }
   .field label { display:block; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); margin-bottom:5px; }
   .field input,.field select { width:100%; font-family:var(--sans); font-size:14px; padding:9px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
@@ -371,6 +377,7 @@
         </div>
         <div class="field"><label data-i18n="f_unit"></label><input class="text" id="hUnit" /></div>
         <div class="field"><label data-i18n="f_target"></label><input class="text" id="hTarget" type="number" min="1" /></div>
+        <div class="field"><label data-i18n="f_seuil"></label><input class="text" id="hSeuil" type="number" min="0" /></div>
         <div class="field"><label data-i18n="f_importance"></label>
           <select id="hImp"><option value="1">100%</option><option value="4">75%</option><option value="2">50%</option><option value="3">25%</option></select>
         </div>
@@ -407,8 +414,8 @@ const I18N = {
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
-    f_unit:'Unité', f_target:'Objectif / j', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
-    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos', pending_today:"aujourd'hui en attente",
+    f_unit:'Unité', f_target:'Objectif / j', f_seuil:'Seuil min', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
+    th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos', pending_today:"aujourd'hui en attente", st_held:'tenu', st_done:'accompli', st_over:'dépassé',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
     tile_habits:'habitudes suivies', tile_done:"complété aujourd'hui", tile_streak:'meilleure série (j)', tile_mood:'humeur moy. 7j',
@@ -423,8 +430,8 @@ const I18N = {
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
-    f_unit:'Unit', f_target:'Goal / day', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
-    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway', pending_today:'today pending',
+    f_unit:'Unit', f_target:'Goal / day', f_seuil:'Min', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
+    th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway', pending_today:'today pending', st_held:'held', st_done:'done', st_over:'exceeded',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
     tile_habits:'habits tracked', tile_done:'completed today', tile_streak:'best streak (d)', tile_mood:'avg mood 7d',
@@ -439,8 +446,8 @@ const I18N = {
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
-    f_unit:'الوحدة', f_target:'الهدف / يوم', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
-    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة', pending_today:'اليوم قيد الانتظار',
+    f_unit:'الوحدة', f_target:'الهدف / يوم', f_seuil:'الحد الأدنى', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
+    th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة', pending_today:'اليوم قيد الانتظار', st_held:'محقّق', st_done:'مُنجز', st_over:'تجاوز',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
     tile_habits:'عادات متابَعة', tile_done:'أُنجز اليوم', tile_streak:'أطول سلسلة (يوم)', tile_mood:'متوسط المزاج 7ي',
@@ -463,13 +470,13 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 /* ---- Supabase : lecture de l'état complet ---- */
 async function supaGetState(){
   const [h,l,d,tk] = await Promise.all([
-    supa.from('habits').select('id,name,type,unit,target,color,position,importance,active,active_days').eq('archived',false).order('position'),
+    supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position'),
     supa.from('logs').select('day,habit_id,value'),
     supa.from('days').select('day,mood,note'),
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),color:x.color,importance:Number(x.importance||1),active:x.active!==false,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -482,7 +489,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,color:p.color,importance:p.importance||1,active:p.active!==false,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -553,7 +560,19 @@ const SKIP='SKIP';
 function isSkip(v){ return v===SKIP; }
 // v "réellement renseigné" (fait/saisi) ? (SKIP n'est pas un log)
 function hasLog(h,v){ if(v==null||v===''||v===false||v===SKIP) return false; if(h.type==='binary') return !!v; return true; }
+// Seuil minimum d'une habitude quantifiée (null si non défini)
+function seuilOf(h){ return (h.type==='quant' && h.seuil!=null && h.seuil!=='') ? Number(h.seuil) : null; }
+// "tenu" : au moins le seuil (ou l'objectif si pas de seuil). Sert aux séries.
+function isHeld(h,v){
+  if(v==null||v===false||v===SKIP) return false;
+  if(h.type==='binary') return !!v;
+  const s=seuilOf(h); const bar = s!=null ? s : Number(h.target||1);
+  return Number(v) >= bar;
+}
+// "accompli" : objectif atteint
 function isDone(h,v){ if(v==null||v===false||v===SKIP)return false; if(h.type==='binary')return !!v; return Number(v)>=Number(h.target||1); }
+// "dépassé" : au-delà de l'objectif
+function isExceeded(h,v){ return h.type==='quant' && v!=null && v!==SKIP && v!=='' && Number(v) > Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // Jours de la semaine où l'habitude s'applique (getDay: 0=dim..6=sam). Absent => tous.
 function activeDaysOf(h){ return (Array.isArray(h.activeDays)&&h.activeDays.length)?h.activeDays:[0,1,2,3,4,5,6]; }
@@ -592,14 +611,14 @@ function streak(h){
   let n=0; const d=new Date(); const today=keyOf(d);
   for(let i=0;i<400;i++){ const k=keyOf(d);
     if(!counts(h,k)){ d.setDate(d.getDate()-1); continue; }        // inactif / skip / hors-planning -> neutre
-    if(isDone(h,hv(k,h.id))){ n++; d.setDate(d.getDate()-1); continue; }
+    if(isHeld(h,hv(k,h.id))){ n++; d.setDate(d.getDate()-1); continue; }  // tenu (>= seuil) -> la série continue
     if(k===today){ d.setDate(d.getDate()-1); continue; }           // jour en cours non fini -> ignoré, pas une rupture
-    break;                                                          // vraie rupture (jour échu, actif, non skip, non validé)
+    break;                                                          // vraie rupture (jour échu, actif, non skip, non tenu)
   }
   return n;
 }
-// Le jour en cours reste-t-il à faire ? (jour actif, non skip, pas encore validé)
-function todayPending(h){ const k=todayKey(); return counts(h,k) && !isDone(h,hv(k,h.id)); }
+// Le jour en cours reste-t-il à faire ? (jour actif, non skip, seuil pas encore atteint)
+function todayPending(h){ const k=todayKey(); return counts(h,k) && !isHeld(h,hv(k,h.id)); }
 function moodAvg(keys){ const v=keys.map(k=>{const d=dayRO(k);return d?d.mood:null;}).filter(x=>x!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
 function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -612,7 +631,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,importance:h.importance||1,active:h.active!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6]}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6]}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitLog(dk,hid,val){ push('log', {day:dk,habit_id:hid,value:val}); }
 function commitDay(dk,mood,note){ push('day', {day:dk,mood,note}); }
@@ -688,12 +707,22 @@ function renderMatrix(){
   }
   box.innerHTML=`<table class="mtable"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
 }
+// Statut du jour pour une habitude : '', 'over', 'done', 'held' ou 'pending'
+function todayStatus(h){ const k=todayKey(); if(!counts(h,k)) return ''; const v=hv(k,h.id);
+  if(isExceeded(h,v)) return 'over'; if(isDone(h,v)) return 'done'; if(isHeld(h,v)) return 'held'; return 'pending'; }
 function renderStreaks(){
   const el=document.getElementById('streaks');
   const hs=activeHabits();
   if(!hs.length){ el.innerHTML=`<li class="empty">—</li>`; return; }
-  el.innerHTML=hs.map(h=>({h,s:streak(h),p:todayPending(h)})).sort((a,b)=>b.s-a.s)
-    .map(({h,s,p})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span><span class="v">${s}${p?` <small class="pend">· ${t('pending_today')}</small>`:''}</span></li>`).join('');
+  const badgeFor=(st)=>{
+    if(st==='over') return `<small class="stat over">${t('st_over')}</small>`;
+    if(st==='done') return `<small class="stat done">${t('st_done')}</small>`;
+    if(st==='held') return `<small class="stat held">${t('st_held')}</small>`;
+    if(st==='pending') return `<small class="pend">${t('pending_today')}</small>`;
+    return '';
+  };
+  el.innerHTML=hs.map(h=>({h,s:streak(h),st:todayStatus(h)})).sort((a,b)=>b.s-a.s)
+    .map(({h,s,st})=>`<li><span class="sw" style="background:${h.color}"></span><span class="nm">${esc(h.name)}</span>${badgeFor(st)}<span class="v">${s}</span></li>`).join('');
 }
 let cComp=null,cMood=null,compRange='month';
 // Jours couverts par la période choisie
@@ -715,8 +744,11 @@ function renderCharts(){
   const long=keys.length>40;
 
   // Taux de complétion (pondéré par importance) + moyenne de la période
-  const comp=keys.map(k=>Math.round(completion(k)*100));
-  const avg=comp.length?Math.round(comp.reduce((a,b)=>a+b,0)/comp.length):0;
+  const todayK=todayKey();
+  // le jour en cours n'est pas terminé -> on ne le trace pas et on l'exclut de la moyenne
+  const comp=keys.map(k=>k===todayK?null:Math.round(completion(k)*100));
+  const done=comp.filter(v=>v!=null);
+  const avg=done.length?Math.round(done.reduce((a,b)=>a+b,0)/done.length):0;
   const av=document.getElementById('rangeAvg'); if(av) av.textContent=avg+'%';
 
   if(cComp)cComp.destroy();
@@ -753,8 +785,10 @@ function renderDay(){
       const skipBtn = `<button class="skipbtn${skipped?' on':''}" data-skip="${h.id}" title="${t('skip_day')}">⊘</button>`;
       if(h.type==='binary'){ const on=isDone(h,v);
         return `<li class="${liCls}"><button class="check${on?' on':''}" data-toggle="${h.id}" style="${on?'background:'+h.color:''}" aria-pressed="${on}">${on?'✓':''}</button><span class="hname">${esc(h.name)} ${tag}</span>${skipBtn}</li>`; }
-      const done=isDone(h,v);
-      return `<li class="${liCls}"><button class="check${done?' on':''}" style="${done?'background:'+h.color:''}" aria-hidden="true">${done?'✓':''}</button><span class="hname">${esc(h.name)} <small>${t('obj')} ${h.target} ${esc(h.unit)}</small> ${tag}</span><input class="qin" type="number" min="0" data-quant="${h.id}" value="${(v!=null&&v!==SKIP)?v:''}" /><span class="qunit">${esc(h.unit)}</span>${skipBtn}</li>`;
+      const held=isHeld(h,v), acc=isDone(h,v), over=isExceeded(h,v);
+      const stat = over? `<small class="stat over">${t('st_over')}</small>` : (acc? `<small class="stat done">${t('st_done')}</small>` : (held? `<small class="stat held">${t('st_held')}</small>` : ''));
+      const seuilTxt = seuilOf(h)!=null ? ` <small class="minlbl">(${t('f_seuil').toLowerCase()} ${seuilOf(h)})</small>` : '';
+      return `<li class="${liCls}"><button class="check${held?' on':''}" style="${held?'background:'+h.color:''}" aria-hidden="true">${held?'✓':''}</button><span class="hname">${esc(h.name)} <small>${t('obj')} ${h.target} ${esc(h.unit)}</small>${seuilTxt} ${stat} ${tag}</span><input class="qin" type="number" min="0" data-quant="${h.id}" value="${(v!=null&&v!==SKIP)?v:''}" /><span class="qunit">${esc(h.unit)}</span>${skipBtn}</li>`;
     }).join('');
   }
   document.getElementById('moods').innerHTML=[1,2,3,4,5].map(m=>`<button class="mood" data-mood="${m}" aria-pressed="${d.mood===m}">${MOOD[m]}</button>`).join('');
@@ -846,11 +880,11 @@ document.getElementById('hColorPicker').addEventListener('input',e=>{ newColor=e
 document.getElementById('hDays').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b)return;
   const i=Number(b.dataset.day); if(newDays.has(i)) newDays.delete(i); else newDays.add(i);
   if(newDays.size===0) newDays.add(i); renderDaySel(); });
-document.getElementById('hType').addEventListener('change',e=>{const q=e.target.value==='quant';document.getElementById('hUnit').disabled=!q;document.getElementById('hTarget').disabled=!q;});
+document.getElementById('hType').addEventListener('change',e=>{const q=e.target.value==='quant';document.getElementById('hUnit').disabled=!q;document.getElementById('hTarget').disabled=!q;document.getElementById('hSeuil').disabled=!q;});
 
 let editingId=null;
 function resetHabitForm(){
-  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hImp').value='1';
+  document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hSeuil').value=''; document.getElementById('hImp').value='1';
   document.getElementById('hType').value='binary'; document.getElementById('hUnit').disabled=true; document.getElementById('hTarget').disabled=true;
   newColor=PALETTE[0]; newDays=new Set([0,1,2,3,4,5,6]); renderDaySel();
   const cp=document.getElementById('hColorPicker'); if(cp) cp.value=PALETTE[0];
@@ -868,8 +902,8 @@ function startEdit(hid){
   document.getElementById('hName').value=h.name;
   document.getElementById('hType').value=h.type;
   const q=h.type==='quant';
-  document.getElementById('hUnit').disabled=!q; document.getElementById('hTarget').disabled=!q;
-  document.getElementById('hUnit').value=h.unit||''; document.getElementById('hTarget').value=q?(h.target||1):'';
+  document.getElementById('hUnit').disabled=!q; document.getElementById('hTarget').disabled=!q; document.getElementById('hSeuil').disabled=!q;
+  document.getElementById('hUnit').value=h.unit||''; document.getElementById('hTarget').value=q?(h.target||1):''; document.getElementById('hSeuil').value=(q&&h.seuil!=null)?h.seuil:'';
   document.getElementById('hImp').value=String(h.importance||1);
   newColor=h.color; renderSwatches();
   const cp=document.getElementById('hColorPicker'); if(cp && /^#[0-9a-fA-F]{6}$/.test(h.color||'')) cp.value=h.color;
@@ -888,12 +922,14 @@ document.getElementById('hAdd').addEventListener('click',()=>{
   const importance=Number(document.getElementById('hImp').value)||1;
   const unit=type==='quant'?(document.getElementById('hUnit').value.trim()||''):'';
   const target=type==='quant'?(Number(document.getElementById('hTarget').value)||1):1;
+  const seuilRaw=document.getElementById('hSeuil').value;
+  const seuil=(type==='quant' && seuilRaw!=='' && !isNaN(Number(seuilRaw)))?Number(seuilRaw):null;
   const activeDays=Array.from(newDays).sort((a,b)=>a-b);
   if(editingId){
-    const h=state.habits.find(x=>x.id===editingId); if(h){ Object.assign(h,{name,type,unit,target,color:newColor,importance,activeDays}); saveLocal(); commitHabit(h); }
+    const h=state.habits.find(x=>x.id===editingId); if(h){ Object.assign(h,{name,type,unit,target,seuil,color:newColor,importance,activeDays}); saveLocal(); commitHabit(h); }
     exitEdit();
   } else {
-    const h={id:id(),name,type,color:newColor,unit,target,importance,active:true,activeDays};
+    const h={id:id(),name,type,color:newColor,unit,target,seuil,importance,active:true,activeDays};
     state.habits.push(h); saveLocal(); commitHabit(h);
     resetHabitForm();
   }
