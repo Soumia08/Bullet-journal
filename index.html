@@ -174,6 +174,18 @@
   #reviewMount .revacqbody{ margin-top:6px;font-size:13px; }
   #reviewMount .revset{ margin-top:14px;border-top:1px dashed var(--rule);padding-top:12px; }
   #reviewMount .recbox{ background:#FBEAF0;border:1px solid #ED93B1;border-radius:8px;padding:9px 11px;margin:6px 0 4px;font-size:12px;color:#993556;line-height:1.7; }
+  #reviewMount .histweek{ padding:10px 0; border-bottom:1px dashed var(--rule); }
+  #reviewMount .histweek:last-child{ border-bottom:none; }
+  #reviewMount .histweek-h{ font-family:var(--serif); font-weight:900; font-size:14px; margin-bottom:6px; }
+  #reviewMount .histlock{ color:var(--berry); font-size:12px; }
+  #reviewMount .histitem{ display:flex; justify-content:space-between; gap:12px; align-items:baseline; padding:3px 0; font-size:13px; }
+  #reviewMount .hi-name{ font-weight:500; flex:0 1 auto; min-width:0; overflow-wrap:anywhere; }
+  #reviewMount .hi-meta{ font-family:var(--mono); font-size:11px; color:var(--ink-2); text-align:end; flex:1 1 auto; white-space:normal; }
+  #reviewMount .hi-trig{ color:var(--ink-3); }
+  #reviewMount .hi-arrow{ margin:0 4px; color:var(--ink-3); }
+  #reviewMount .hi-dec.neutral{ color:var(--ink-2); }
+  #reviewMount .hi-dec.change{ color:var(--berry); }
+  #reviewMount .histmuted{ font-family:var(--mono); font-size:11px; color:var(--ink-3); }
   #reviewMount .pillbtn{ font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border:1.5px solid var(--rule);background:#fff;color:var(--ink-2);border-radius:8px;padding:6px 10px;cursor:pointer; }
   #reviewMount .revpicker{ background:var(--paper);border:1.5px solid var(--rule);border-radius:10px;padding:12px;margin-top:12px; }
   #reviewMount .pickfrom{ font-size:12px;color:var(--ink-2);margin:6px 0 8px; }
@@ -1089,10 +1101,20 @@ function renderRecurring(){ const recs=computeRecurrences(); if(!recs.length) re
 function renderHistoryList(){
   const weeks=Object.keys(state.reviews).sort().reverse();
   if(!weeks.length) return `<p class="empty">${rv('hist_none')}</p>`;
+  const decClass=d=>d==='rien'?'neutral':'change';
   let html='';
-  for(const w of weeks){ const r=state.reviews[w];
-    const items=r.items||{}; const parts=Object.keys(items).filter(hid=>items[hid]&&(itemTriggers(items[hid]).length||items[hid].decision)).map(hid=>{ const h=state.habits.find(x=>x.id===hid); const nm=h?h.name:'?'; const it=items[hid]; const tg=itemTriggers(it); return `${esc(nm)}${tg.length?'→'+tg.map(esc).join('+'):''}${it.decision?' · '+esc(decLabel(it.decision)):''}`; });
-    html+=`<div class="brow" style="padding:8px 0"><div class="rtop"><span>${weekRangeLabel(w)}</span><span class="rr" style="font-size:11px">${isLockedWeek(w)?rv('locked'):(parts.join(' | ')||'—')}</span></div></div>`;
+  for(const w of weeks){ const r=state.reviews[w]; const items=r.items||{};
+    const hids=Object.keys(items).filter(hid=>items[hid]&&(itemTriggers(items[hid]).length||items[hid].decision));
+    const locked=isLockedWeek(w);
+    let inner;
+    if(!hids.length){ inner=`<div class="histmuted">${locked?rv('locked'):'—'}</div>`; }
+    else { inner=hids.map(hid=>{ const h=state.habits.find(x=>x.id===hid); const nm=h?h.name:'?'; const it=items[hid]; const tg=itemTriggers(it);
+        const trTxt=tg.length?`<span class="hi-trig">${tg.map(esc).join(', ')}</span>`:'';
+        const decTxt=it.decision?`<span class="hi-dec ${decClass(it.decision)}">${esc(decLabel(it.decision))}</span>`:'';
+        const arrow=(tg.length&&it.decision)?`<span class="hi-arrow">→</span>`:'';
+        return `<div class="histitem"><span class="hi-name">${esc(nm)}</span><span class="hi-meta">${trTxt}${arrow}${decTxt}</span></div>`;
+      }).join(''); }
+    html+=`<div class="histweek"><div class="histweek-h">${weekRangeLabel(w)}${locked?` <span class="histlock">⊘</span>`:''}</div>${inner}</div>`;
   }
   return html;
 }
