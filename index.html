@@ -144,6 +144,12 @@
   #weekGlance .brk{ color:var(--berry); }
   #weekGlance .revmoodline{ font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:10px; }
   .tabs{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .moodsplit{ margin-top:12px; border:1.5px solid var(--rule); border-radius:9px; padding:8px 10px; background:var(--paper-2); }
+  .moodsplit .ms-lbl{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+  .moodsplit .ms-cols{ display:flex; gap:8px; margin-top:6px; }
+  .moodsplit .ms-col{ flex:1; text-align:center; background:var(--paper); border:1px solid var(--rule); border-radius:7px; padding:6px 6px; }
+  .moodsplit .ms-val{ font-family:var(--serif); font-weight:900; font-size:17px; color:#2E5E9C; line-height:1; }
+  .moodsplit .ms-cap{ font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); margin-top:4px; }
   #reviewMount .revsub{ font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px; }
   #reviewMount .revnav{ display:flex;align-items:center;justify-content:space-between;margin:14px 0 4px; }
   #reviewMount .revweek{ font-family:var(--serif);font-weight:900;font-size:16px; }
@@ -909,6 +915,12 @@ function moodSplit(startK){ const wdset=state.settings.workdays||[1,2,3]; let ws
   const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null;
   return {worked:avg(ws), other:avg(os)};
 }
+function moodSplitBlock(startK){ const ms=moodSplit(startK); const v=x=>x==null?'—':x.toFixed(1);
+  return `<div class="moodsplit"><div class="ms-lbl">${rv('mood')}</div><div class="ms-cols">`+
+    `<div class="ms-col"><div class="ms-val">${v(ms.worked)}</div><div class="ms-cap">${rv('mood_worked')}</div></div>`+
+    `<div class="ms-col"><div class="ms-val">${v(ms.other)}</div><div class="ms-cap">${rv('mood_other')}</div></div>`+
+    `</div></div>`;
+}
 
 /* ---- revues : accès + écriture ---- */
 let selectedWeek=null;
@@ -991,8 +1003,7 @@ function renderReview(){
     statsHtml+=`<div class="brow"><div class="rtop"><span>${esc(h.name)}</span>${right}</div>${body}</div>`;
   }
 
-  const ms=moodSplit(selectedWeek);
-  const moodHtml=`${rv('mood')} — ${rv('mood_worked')} <b>${ms.worked==null?'—':ms.worked.toFixed(1)}</b> · ${rv('mood_other')} <b>${ms.other==null?'—':ms.other.toFixed(1)}</b>`;
+  const moodHtml=moodSplitBlock(selectedWeek);
 
   let acqHtml='';
   if(acqH.length){
@@ -1033,7 +1044,7 @@ function renderReview(){
     <div class="revlbl">${rv('planhabits')}</div>
     <div id="revStats">${statsHtml||`<p class="empty">${rv('data_none')}</p>`}</div>
     ${locked?`<div class="revlock">⊘ ${rv('lock_note')}</div>`:''}
-    <div class="revmoodline">${moodHtml}</div>
+    ${moodHtml}
     ${acqHtml?`<div class="revacq">${acqHtml}</div>`:''}
     <div class="revset">
       <span class="revlbl">${rv('workdays')}</span>
@@ -1063,13 +1074,12 @@ function renderWeekGlance(){
       (broke?`<span class="rr brk">${s.tenu}/${s.actif} · ${rv('broke')} ${shortDays(s.broken)}</span>`
             :`<span class="rr" style="color:var(--ok)">${s.tenu}/${s.actif}</span>`)+`</div>`;
   }
-  const ms=moodSplit(wkStart);
-  const moodHtml=`${rv('mood')} — ${rv('mood_worked')} <b>${ms.worked==null?'—':ms.worked.toFixed(1)}</b> · ${rv('mood_other')} <b>${ms.other==null?'—':ms.other.toFixed(1)}</b>`;
+  const moodHtml=moodSplitBlock(wkStart);
   const canReview = true; // une semaine complète existe toujours (la précédente)
   mount.innerHTML=`<div class="card">
     <div class="glancehead"><h2 style="margin:0">${rv('glance_title')}</h2><span class="revsub">${weekRangeLabel(wkStart)}</span></div>
     <div style="margin-top:8px">${rows}</div>
-    <div class="revmoodline">${moodHtml}</div>
+    ${moodHtml}
     ${canReview?`<button class="link" id="glanceOpen" style="margin-top:10px">${rv('open_review')} →</button>`:''}
   </div>`;
   const go=document.getElementById('glanceOpen'); if(go) go.onclick=()=>{ selectedWeek=lastCompletedWeekStart(); switchView('review'); };
