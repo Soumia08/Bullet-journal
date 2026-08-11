@@ -136,6 +136,50 @@
   .streaks .v { font-family:var(--mono); font-weight:700; font-size:14px; }
   .streaks .v .pend { font-weight:400; font-size:10px; color:var(--ink-3); letter-spacing:.02em; }
 
+  #reviewMount .revhead{ display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap; }
+  #weekGlance .glancehead{ display:flex;justify-content:space-between;align-items:baseline;gap:8px; }
+  #weekGlance .revsub{ font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3); }
+  #weekGlance .rtop{ display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px; }
+  #weekGlance .rr{ font-family:var(--mono);font-size:12px;color:var(--ink-2); }
+  #weekGlance .brk{ color:var(--berry); }
+  #weekGlance .revmoodline{ font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:10px; }
+  .tabs{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #reviewMount .revsub{ font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px; }
+  #reviewMount .revnav{ display:flex;align-items:center;justify-content:space-between;margin:14px 0 4px; }
+  #reviewMount .revweek{ font-family:var(--serif);font-weight:900;font-size:16px; }
+  #reviewMount .revlockline{ font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-top:2px; }
+  #reviewMount .revlbl{ font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 4px; }
+  #reviewMount .brow{ padding:10px 0;border-bottom:1px dashed var(--rule); }
+  #reviewMount .brow:last-child{ border-bottom:none; }
+  #reviewMount .rtop{ display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px; }
+  #reviewMount .rr{ font-family:var(--mono);font-size:12px;color:var(--ink-2); }
+  #reviewMount .brk{ color:var(--berry); }
+  #reviewMount .revmini{ font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:8px 0 4px; }
+  #reviewMount .revtodo{ font-size:11px;color:var(--ink-3);margin-top:6px; }
+  #reviewMount .revchips{ display:flex;flex-wrap:wrap;gap:5px; }
+  #reviewMount .revchip{ font-family:var(--mono);font-size:11px;border:1.5px solid var(--rule);background:var(--paper-2);color:var(--ink-3);border-radius:20px;padding:5px 10px;cursor:pointer; }
+  #reviewMount .revchip.sm{ font-size:10px;padding:4px 9px; }
+  #reviewMount .revchip.on{ border-color:var(--berry);color:var(--ink);background:#fff; }
+  #reviewMount .revchip.dec.on{ border-color:var(--ok);color:var(--ok); }
+  #reviewMount .revlock{ display:flex;gap:8px;font-size:12px;color:var(--ink-2);background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;margin-top:10px;line-height:1.5; }
+  #reviewMount .revmoodline{ font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:12px; }
+  #reviewMount .revacq{ margin-top:12px;border-top:1px dashed var(--rule);padding-top:10px; }
+  #reviewMount .revacqhead{ display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-2);cursor:pointer; }
+  #reviewMount .revacqbody{ margin-top:6px;font-size:13px; }
+  #reviewMount .revset{ margin-top:14px;border-top:1px dashed var(--rule);padding-top:12px; }
+  #reviewMount .recbox{ background:#FBEAF0;border:1px solid #ED93B1;border-radius:8px;padding:9px 11px;margin:6px 0 4px;font-size:12px;color:#993556;line-height:1.7; }
+  #reviewMount .pillbtn{ font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border:1.5px solid var(--rule);background:#fff;color:var(--ink-2);border-radius:8px;padding:6px 10px;cursor:pointer; }
+  #reviewMount .revpicker{ background:var(--paper);border:1.5px solid var(--rule);border-radius:10px;padding:12px;margin-top:12px; }
+  #reviewMount .pickrow{ display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px; }
+  #reviewMount .pickrow .cdot{ width:10px;height:10px;border-radius:50%;display:inline-block; }
+  #reviewMount .pickbtns{ margin-top:10px; }
+  #reviewMount .trigeditor{ background:var(--paper);border:1.5px solid var(--rule);border-radius:10px;padding:10px;margin-top:8px; }
+  #reviewMount .trigrow{ display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--rule); }
+  #reviewMount .trigrow .tx{ border:none;background:none;color:var(--ink-3);cursor:pointer; }
+  #reviewMount .trigadd{ display:flex;gap:6px;margin-top:8px; }
+  #reviewMount .trigadd input{ flex:1; }
+  [dir="rtl"] #reviewMount .daynav{ transform:scaleX(-1); }
+
   .dayhead { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
   .dayhead input[type=date] { font-family:var(--mono); font-size:13px; padding:8px 10px; border:1.5px solid var(--rule); border-radius:8px; background:var(--paper-2); color:var(--ink); }
   .daynav { border:1.5px solid var(--rule); background:var(--paper-2); border-radius:8px; width:36px; height:36px; font-size:17px; cursor:pointer; color:var(--ink-2); }
@@ -322,6 +366,7 @@
     <button class="tab" role="tab" aria-selected="true"  data-view="dash"   data-i18n="tab_dash"></button>
     <button class="tab" role="tab" aria-selected="false" data-view="day"    data-i18n="tab_day"></button>
     <button class="tab" role="tab" aria-selected="false" data-view="habits" data-i18n="tab_habits"></button>
+    <button class="tab" role="tab" aria-selected="false" data-view="review" data-i18n="tab_review"></button>
   </nav>
 
   <section class="view on" id="view-dash">
@@ -348,6 +393,7 @@
       <div class="card"><h2 data-i18n="comp_title"></h2><div class="chartbox"><canvas id="chartComp"></canvas></div></div>
       <div class="card"><h2 data-i18n="mood_title"></h2><div class="chartbox"><canvas id="chartMood"></canvas></div></div>
     </div>
+    <div id="weekGlance"></div>
     <div class="card"><h2 data-i18n="streaks_title"></h2><ul class="streaks" id="streaks"></ul></div>
   </section>
 
@@ -388,6 +434,9 @@
     </div>
     <div class="card"><h2 data-i18n="mine"></h2><table class="htable" id="habitTable"></table></div>
   </section>
+  <section class="view" id="view-review">
+    <div id="reviewMount"></div>
+  </section>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -408,7 +457,7 @@ let supa = null, UID = null, MODE = 'local';   // 'supabase' une fois connecté(
 
 /* ---- i18n ---- */
 const I18N = {
-  fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes',
+  fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes', tab_review:'Revue',
     matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'remplissage = valeur / objectif',
     comp_title:'Taux de complétion', mood_title:'Humeur', streaks_title:'Séries en cours', r_week:'Semaine', r_month:'Mois en cours', r_3m:'3 mois', r_6m:'6 mois', avg:'moyenne',
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
@@ -424,7 +473,7 @@ const I18N = {
     li_hint:'Une fois par appareil. Le même compte = les mêmes données partout.', logout:'déconnexion',
     days:['dim','lun','mar','mer','jeu','ven','sam'],
     months:['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'], loc:'fr-FR' },
-  en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits',
+  en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits', tab_review:'Review',
     matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'fill = value / target',
     comp_title:'Completion rate', mood_title:'Mood', streaks_title:'Current streaks', r_week:'Week', r_month:'This month', r_3m:'3 months', r_6m:'6 months', avg:'average',
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
@@ -440,7 +489,7 @@ const I18N = {
     li_hint:'Once per device. Same account = same data everywhere.', logout:'sign out',
     days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], loc:'en-US' },
-  ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات',
+  ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات', tab_review:'مراجعة',
     matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'التعبئة = القيمة / الهدف',
     comp_title:'نسبة الإنجاز', mood_title:'المزاج', streaks_title:'السلاسل الجارية', r_week:'أسبوع', r_month:'هذا الشهر', r_3m:'3 أشهر', r_6m:'6 أشهر', avg:'المتوسط',
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
@@ -469,20 +518,28 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 
 /* ---- Supabase : lecture de l'état complet ---- */
 async function supaGetState(){
-  const [h,l,d,tk] = await Promise.all([
+  const [h,l,d,tk,pe,rv,se] = await Promise.all([
     supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position'),
     supa.from('logs').select('day,habit_id,value'),
     supa.from('days').select('day,mood,note'),
-    supa.from('tasks').select('id,day,txt,done').order('position')
+    supa.from('tasks').select('id,day,txt,done').order('position'),
+    supa.from('periods').select('id,start,habit_ids'),
+    supa.from('reviews').select('week_start,period_id,items'),
+    supa.from('settings').select('workdays,triggers')
   ]);
-  for(const r of [h,l,d,tk]) if(r.error) throw r.error;
+  for(const r of [h,l,d,tk,pe,rv,se]) if(r.error) throw r.error;
   const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
   for(const r of d.data){ touch(r.day); days[r.day].mood = r.mood==null?null:Number(r.mood); days[r.day].note = r.note||''; }
   for(const r of tk.data){ touch(r.day); days[r.day].tasks.push({id:r.id, t:r.txt, done:!!r.done}); }
-  return { habits, days };
+  const periods = (pe.data||[]).map(x=>({id:x.id, start:x.start, habitIds:(x.habit_ids!=null&&x.habit_ids!=='')?String(x.habit_ids).split(','):[]})).sort((a,b)=>a.start<b.start?-1:1);
+  const reviews = {};
+  for(const r of (rv.data||[])){ let items={}; try{ items=r.items?JSON.parse(r.items):{}; }catch{} reviews[r.week_start]={periodId:r.period_id||null, items}; }
+  const s0 = (se.data&&se.data[0])||{};
+  const settings = { workdays:(s0.workdays!=null&&s0.workdays!=='')?String(s0.workdays).split(',').map(Number):[1,2,3], triggers:(s0.triggers!=null&&s0.triggers!=='')?String(s0.triggers).split('|'):null };
+  return { habits, days, periods, reviews, settings };
 }
 
 /* ---- Supabase : application d'une opération d'écriture ---- */
@@ -499,6 +556,9 @@ async function applyOp(op){
     case 'taskAdd':  res = await supa.from('tasks').insert({id:p.id,user_id:UID,day:p.day,txt:p.txt}); break;
     case 'taskUpd':  res = await supa.from('tasks').update({done:p.done}).eq('id',p.id); break;
     case 'taskDel':  res = await supa.from('tasks').delete().eq('id',p.id); break;
+    case 'period':   res = await supa.from('periods').upsert({id:p.id,user_id:UID,start:p.start,habit_ids:(p.habitIds||[]).join(',')}); break;
+    case 'review':   res = await supa.from('reviews').upsert({user_id:UID,week_start:p.weekStart,period_id:p.periodId||null,items:JSON.stringify(p.items||{})},{onConflict:'user_id,week_start'}); break;
+    case 'settings': res = await supa.from('settings').upsert({user_id:UID,workdays:(p.workdays||[1,2,3]).join(','),triggers:(p.triggers||[]).join('|')},{onConflict:'user_id'}); break;
   }
   if(res && res.error) throw res.error;
 }
@@ -535,6 +595,10 @@ async function load(){
     state = await loadLocal(); online = true;
   }
   state.habits=state.habits||[]; state.days=state.days||{};
+  state.periods=state.periods||[]; state.reviews=state.reviews||{};
+  state.settings=state.settings||{}; if(!Array.isArray(state.settings.workdays)) state.settings.workdays=[1,2,3];
+  if(!Array.isArray(state.settings.triggers)||!state.settings.triggers.length) state.settings.triggers=DEFAULT_TRIGGERS.slice();
+  bootstrapPeriod();
   setNet();
 }
 function setNet(){
@@ -633,6 +697,9 @@ function push(kind, payload){
 }
 function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6]}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
+function commitPeriod(pd){ push('period', {id:pd.id,start:pd.start,habitIds:pd.habitIds||[]}); }
+function commitReview(weekStart){ const r=state.reviews[weekStart]||{}; push('review', {weekStart, periodId:r.periodId||null, items:r.items||{}}); }
+function commitSettings(){ push('settings', {workdays:state.settings.workdays||[1,2,3], triggers:state.settings.triggers||[]}); }
 function commitLog(dk,hid,val){ push('log', {day:dk,habit_id:hid,value:val}); }
 function commitDay(dk,mood,note){ push('day', {day:dk,mood,note}); }
 function commitTaskAdd(dk,task){ push('taskAdd', {id:task.id,day:dk,txt:task.t}); }
@@ -764,7 +831,274 @@ function renderCharts(){
     data:{labels,datasets:[{data:mood,borderColor:'#2E5E9C',backgroundColor:'rgba(46,94,156,.12)',tension:.35,fill:true,spanGaps:true,pointRadius:long?0:3,pointBackgroundColor:'#2E5E9C'}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:6}},plugins:{legend:{display:false}},scales:{y:{min:1,max:5.5,grid:{color:'#E5E1D5'},afterFit:s=>{s.width=44;},ticks:{stepSize:1,callback:v=>v<=5?v:''}},x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:long?8:12}}}}});
 }
-function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); }
+function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); renderWeekGlance(); }
+
+/* ============================================================
+   REVUE HEBDOMADAIRE (lit les données, ne les modifie pas)
+   ============================================================ */
+const DEFAULT_TRIGGERS=['fatigue','ennui','tension','après une tâche','sans raison'];
+const DECISIONS=['rien','ajouter','reviser'];
+const REV={
+  fr:{ title:'Revue hebdomadaire', revise:'Réviser le plan', plan_since:'plan en cours · depuis', planhabits:'Habitudes du plan',
+    data_none:'Aucune habitude dans le plan. Utilise « Réviser le plan ».', trigger:'Déclencheur', decision:'Décision',
+    d_rien:'ne rien changer', d_ajouter:'ajouter une habitude', d_reviser:'réviser une règle',
+    held:'tenu', nothing:'rien à décider', noactive:'aucun jour actif cette semaine', broke:'cassé', todo:'déclencheur + décision à renseigner…',
+    mood_worked:'travaillés', mood_other:'autres', mood:'Humeur', locked:'verrouillée · fenêtre de révision',
+    lock_note:'Décisions verrouillées sur « ne rien changer » les 2 semaines suivant une révision de plan : pas de changement avant une mesure stable.',
+    acq:'Acquises', collapsed:'replié', workdays:'Jours travaillés', edit_trig:'Modifier les déclencheurs', add_trig:'ajouter…', done_edit:'terminé',
+    hist:'Historique des revues', hist_none:'Aucune revue pour l\'instant.', plan_from:'Plan depuis', plan_range:'Plan du', weeks:'sem.', of_suite:'semaines de suite', recdays:'jours',
+    glance_title:'Cette semaine', open_review:'Ouvrir la revue', picker_title:'Habitudes en rodage pour ce plan', picker_ok:'Créer la période', picker_cancel:'annuler' },
+  en:{ title:'Weekly review', revise:'Revise plan', plan_since:'current plan · since', planhabits:'Plan habits',
+    data_none:'No habit in the plan. Use “Revise plan”.', trigger:'Trigger', decision:'Decision',
+    d_rien:'change nothing', d_ajouter:'add a habit', d_reviser:'revise a rule',
+    held:'held', nothing:'nothing to decide', noactive:'no active day this week', broke:'broke', todo:'set trigger + decision…',
+    mood_worked:'work days', mood_other:'other', mood:'Mood', locked:'locked · revision window',
+    lock_note:'Decisions locked to “change nothing” for 2 weeks after a plan revision: no change before a stable measure.',
+    acq:'Acquired', collapsed:'collapsed', workdays:'Work days', edit_trig:'Edit triggers', add_trig:'add…', done_edit:'done',
+    hist:'Review history', hist_none:'No review yet.', plan_from:'Plan since', plan_range:'Plan', weeks:'wk', of_suite:'weeks in a row', recdays:'days',
+    glance_title:'This week', open_review:'Open review', picker_title:'Habits in rotation for this plan', picker_ok:'Create period', picker_cancel:'cancel' },
+  ar:{ title:'المراجعة الأسبوعية', revise:'مراجعة الخطة', plan_since:'الخطة الحالية · منذ', planhabits:'عادات الخطة',
+    data_none:'لا عادة في الخطة. استخدمي «مراجعة الخطة».', trigger:'المُحفِّز', decision:'القرار',
+    d_rien:'عدم تغيير شيء', d_ajouter:'إضافة عادة', d_reviser:'مراجعة قاعدة',
+    held:'محقّق', nothing:'لا شيء لتقريره', noactive:'لا يوم فعّال هذا الأسبوع', broke:'انقطع', todo:'حدّدي المُحفِّز والقرار…',
+    mood_worked:'أيام العمل', mood_other:'أخرى', mood:'المزاج', locked:'مقفلة · نافذة المراجعة',
+    lock_note:'القرارات مقفلة على «عدم تغيير شيء» أسبوعين بعد مراجعة الخطة: لا تغيير قبل قياس مستقر.',
+    acq:'مكتسبة', collapsed:'مطوي', workdays:'أيام العمل', edit_trig:'تعديل المحفِّزات', add_trig:'إضافة…', done_edit:'تم',
+    hist:'سجل المراجعات', hist_none:'لا مراجعة بعد.', plan_from:'الخطة منذ', plan_range:'الخطة', weeks:'أسبوع', of_suite:'أسابيع متتالية', recdays:'أيام',
+    glance_title:'هذا الأسبوع', open_review:'فتح المراجعة', picker_title:'العادات قيد التمرين لهذه الخطة', picker_ok:'إنشاء الفترة', picker_cancel:'إلغاء' }
+};
+function rv(k){ return (REV[lang]&&REV[lang][k])||REV.fr[k]||k; }
+function decLabel(d){ return d==='rien'?rv('d_rien'):d==='ajouter'?rv('d_ajouter'):rv('d_reviser'); }
+
+/* ---- helpers date semaine (lundi -> dimanche) ---- */
+function addDaysK(k,n){ const d=parseKey(k); d.setDate(d.getDate()+n); return keyOf(d); }
+function mondayOf(k){ const d=parseKey(k); const wd=d.getDay(); const diff=(wd===0?-6:1-wd); d.setDate(d.getDate()+diff); return keyOf(d); }
+function weekDatesK(startK){ const out=[]; for(let i=0;i<7;i++) out.push(addDaysK(startK,i)); return out; }
+function lastCompletedWeekStart(){ return addDaysK(mondayOf(todayKey()),-7); }
+function weekRangeLabel(startK){ const a=parseKey(startK), b=parseKey(addDaysK(startK,6)); const M=I18N[lang].months;
+  if(a.getMonth()===b.getMonth()) return `${a.getDate()}–${b.getDate()} ${M[b.getMonth()]}`;
+  return `${a.getDate()} ${M[a.getMonth()]} – ${b.getDate()} ${M[b.getMonth()]}`; }
+function shortDays(wds){ return wds.map(w=>I18N[lang].days[w]).join(', '); }
+
+/* ---- périodes (plans) ---- */
+function bootstrapPeriod(){
+  if(state.periods.length) return;
+  const active=activeHabits(); if(!active.length) return;
+  let start=todayKey(); const keys=Object.keys(state.days).sort();
+  for(const k of keys){ const d=state.days[k]; if(d&&d.h&&Object.keys(d.h).length){ start=k; break; } }
+  const pd={id:id(), start, habitIds:active.map(h=>h.id)};
+  state.periods.push(pd); saveLocal(); commitPeriod(pd);
+}
+function currentPeriod(){ if(!state.periods.length) return null; const tk=todayKey();
+  let cur=null; for(const p of state.periods){ if(p.start<=tk) cur=p; } return cur||state.periods[state.periods.length-1]; }
+function periodForWeek(startK){ const sun=addDaysK(startK,6); let cur=null;
+  for(const p of state.periods){ if(p.start<=sun) cur=p; } return cur||(state.periods[0]||null); }
+function isLockedWeek(startK){ const p=periodForWeek(startK); if(!p) return false;
+  const pm=mondayOf(p.start); return startK===pm || startK===addDaysK(pm,7); }
+function planHabitsForWeek(startK){ const p=periodForWeek(startK); const ids=p?p.habitIds:[];
+  return state.habits.filter(h=>h.active!==false && ids.includes(h.id)); }
+function acquiredHabitsForWeek(startK){ const p=periodForWeek(startK); const ids=p?p.habitIds:[];
+  return state.habits.filter(h=>h.active!==false && !ids.includes(h.id)); }
+
+/* ---- stats d'une habitude sur une semaine ---- */
+function habitWeekStats(h,startK,untilK){ let actif=0,tenu=0; const broken=[]; const end=untilK||addDaysK(startK,6);
+  for(const k of weekDatesK(startK)){ if(k>end) break; const v=hv(k,h.id);
+    if(h.active===false) continue; if(v===SKIP) continue;
+    const scheduled=activeDaysOf(h).includes(parseKey(k).getDay());
+    if(!scheduled && !hasLog(h,v)) continue;      // jour non actif -> hors dénominateur
+    actif++; if(isHeld(h,v)) tenu++; else broken.push(parseKey(k).getDay());
+  }
+  return {actif,tenu,broken};
+}
+function moodSplit(startK){ const wdset=state.settings.workdays||[1,2,3]; let ws=[],os=[];
+  for(const k of weekDatesK(startK)){ const d=dayRO(k); if(!d||d.mood==null) continue;
+    (wdset.includes(parseKey(k).getDay())?ws:os).push(d.mood); }
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null;
+  return {worked:avg(ws), other:avg(os)};
+}
+
+/* ---- revues : accès + écriture ---- */
+let selectedWeek=null;
+function getReview(startK){ return state.reviews[startK]||null; }
+function setReviewItem(startK,habitId,field,value){
+  const p=periodForWeek(startK);
+  if(!state.reviews[startK]) state.reviews[startK]={periodId:p?p.id:null, items:{}};
+  if(!state.reviews[startK].items[habitId]) state.reviews[startK].items[habitId]={trigger:null,decision:null};
+  state.reviews[startK].items[habitId][field]=value;
+  saveLocal(); commitReview(startK);
+}
+
+/* ---- récurrence croisée habitude × déclencheur ---- */
+function computeRecurrences(){
+  const weeks=Object.keys(state.reviews).sort();  // ascendant
+  const out=[];
+  for(const h of state.habits){
+    // suite de semaines consécutives (calendaires) avec le même déclencheur pour h
+    let run=[]; let lastWeek=null, lastTrig=null;
+    const flush=()=>{ if(run.length>=2){ const days=new Set(); run.forEach(w=>habitWeekStats(h,w).broken.forEach(d=>days.add(d)));
+        out.push({habit:h, trigger:lastTrig, count:run.length, days:[...days].sort()}); } run=[]; };
+    for(const w of weeks){ const it=(state.reviews[w].items||{})[h.id]; const tr=it&&it.trigger;
+      if(!tr){ flush(); lastWeek=null; lastTrig=null; continue; }
+      const consecutive = lastWeek!==null && w===addDaysK(lastWeek,7);
+      if(tr===lastTrig && consecutive){ run.push(w); }
+      else { flush(); run=[w]; lastTrig=tr; }
+      lastWeek=w;
+    }
+    flush();
+  }
+  return out.sort((a,b)=>b.count-a.count);
+}
+
+/* ---- rendu ---- */
+let acqOpen=false, trigEditOpen=false, planPickerOpen=false, planPickSel=null;
+function renderReview(){
+  const mount=document.getElementById('reviewMount'); if(!mount) return;
+  if(!state.periods.length){ mount.innerHTML=`<div class="card"><h2>${rv('title')}</h2><p class="empty">${rv('data_none')}</p><div style="margin-top:10px"><button class="pillbtn" id="revRevise">${rv('revise')}</button></div><div id="revPicker"></div></div>`; wireReview(mount); return; }
+  if(!selectedWeek) selectedWeek=lastCompletedWeekStart();
+  const cur=currentPeriod();
+  const locked=isLockedWeek(selectedWeek);
+  const canNext = selectedWeek < lastCompletedWeekStart();
+  const planH=planHabitsForWeek(selectedWeek);
+  const acqH=acquiredHabitsForWeek(selectedWeek);
+  const review=getReview(selectedWeek)||{items:{}};
+  const trigs=state.settings.triggers||DEFAULT_TRIGGERS;
+
+  const chip=(txt,on,attrs)=>`<button class="revchip${on?' on':''}" ${attrs}>${esc(txt)}</button>`;
+  const decChip=(dk,on,dis)=>`<button class="revchip dec${on?' on':''}" data-dec="${dk}" ${dis?'disabled style="opacity:.4"':''}>${esc(decLabel(dk))}</button>`;
+
+  let statsHtml='';
+  for(const h of planH){
+    const s=habitWeekStats(h,selectedWeek);
+    const it=(review.items||{})[h.id]||{};
+    if(s.actif===0){ statsHtml+=`<div class="brow"><div class="rtop"><span>${esc(h.name)}</span><span class="rr">${rv('noactive')}</span></div></div>`; continue; }
+    const broke = s.tenu<s.actif;
+    let right = broke? `<span class="rr brk">${s.tenu}/${s.actif} · ${rv('broke')} ${shortDays(s.broken)}</span>` : `<span class="rr" style="color:var(--ok)">${s.tenu}/${s.actif} · ${rv('held')}</span>`;
+    let body='';
+    if(broke){
+      body+=`<div class="revmini">${rv('trigger')}</div><div class="revchips">`+trigs.map(tr=>chip(tr, it.trigger===tr, `data-trig="${h.id}" data-val="${esc(tr)}"`)).join('')+`</div>`;
+      body+=`<div class="revmini">${rv('decision')}</div><div class="revchips">`+DECISIONS.map(dk=>{ const on = locked? dk==='rien' : it.decision===dk; return decChip(dk,on,locked&&dk!=='rien')+''; }).map(x=>x.replace('data-dec',`data-decfor="${h.id}" data-dec`)).join('')+`</div>`;
+      if(!it.trigger && !it.decision) body=`<div class="revtodo">${rv('todo')}</div>`+body;
+    } else {
+      body=`<div class="revtodo">${rv('nothing')}</div>`;
+    }
+    statsHtml+=`<div class="brow"><div class="rtop"><span>${esc(h.name)}</span>${right}</div>${body}</div>`;
+  }
+
+  const ms=moodSplit(selectedWeek);
+  const moodHtml=`${rv('mood')} — ${rv('mood_worked')} <b>${ms.worked==null?'—':ms.worked.toFixed(1)}</b> · ${rv('mood_other')} <b>${ms.other==null?'—':ms.other.toFixed(1)}</b>`;
+
+  let acqHtml='';
+  if(acqH.length){
+    acqHtml=`<div class="revacqhead" id="revAcqToggle"><span><i class="tri">${acqOpen?'▾':'▸'}</i> ${rv('acq')} (${acqH.length})</span><span class="revlbl">${acqOpen?'':rv('collapsed')}</span></div>`;
+    if(acqOpen){ acqHtml+='<div class="revacqbody">'+acqH.map(h=>{const s=habitWeekStats(h,selectedWeek); return `<div class="rtop" style="padding:5px 0"><span>${esc(h.name)}</span><span class="rr">${s.actif?`${s.tenu}/${s.actif}`:'—'}</span></div>`;}).join('')+'</div>'; }
+  }
+
+  const wdBtns=WEEK_ORDER.map(i=>`<button class="revchip sm${(state.settings.workdays||[]).includes(i)?' on':''}" data-workday="${i}">${I18N[lang].days[i]}</button>`).join('');
+  let trigEditor='';
+  if(trigEditOpen){ trigEditor=`<div class="trigeditor">`+trigs.map((tr,idx)=>`<span class="trigrow"><span>${esc(tr)}</span><button class="tx" data-trigdel="${idx}">✕</button></span>`).join('')+
+    `<div class="trigadd"><input class="text" id="trigAddInput" placeholder="${rv('add_trig')}" /><button class="btn" id="trigAddBtn">+</button></div>`+
+    `<div style="margin-top:6px"><button class="link" id="trigEditDone">${rv('done_edit')}</button></div></div>`; }
+
+  mount.innerHTML=`
+  <div class="card">
+    <div class="revhead">
+      <div><h2 style="margin:0">${rv('title')}</h2><div class="revsub">${rv('plan_since')} ${cur?weekRangeLabelDay(cur.start):''}</div></div>
+      <button class="pillbtn" id="revRevise">↻ ${rv('revise')}</button>
+    </div>
+    <div id="revPicker"></div>
+    <div class="revnav">
+      <button class="daynav" id="revPrev" aria-label="prev">‹</button>
+      <div style="text-align:center">
+        <div class="revweek">${weekRangeLabel(selectedWeek)}</div>
+        ${locked?`<div class="revlockline brk"><i class="ti"></i>⊘ ${rv('locked')}</div>`:''}
+      </div>
+      <button class="daynav" id="revNext" aria-label="next" ${canNext?'':'disabled style="opacity:.35"'}>›</button>
+    </div>
+    <div class="revlbl">${rv('planhabits')}</div>
+    <div id="revStats">${statsHtml||`<p class="empty">${rv('data_none')}</p>`}</div>
+    ${locked?`<div class="revlock">⊘ ${rv('lock_note')}</div>`:''}
+    <div class="revmoodline">${moodHtml}</div>
+    ${acqHtml?`<div class="revacq">${acqHtml}</div>`:''}
+    <div class="revset">
+      <span class="revlbl">${rv('workdays')}</span>
+      <div class="revchips" id="revWork">${wdBtns}</div>
+      <div style="margin-top:10px"><button class="link" id="revTrigEdit">${rv('edit_trig')}</button>${trigEditor}</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>${rv('hist')}</h2>
+    ${renderRecurring()}
+    ${renderHistoryList()}
+  </div>`;
+  if(planPickerOpen) openPlanPicker();
+  wireReview(mount);
+}
+function weekRangeLabelDay(k){ const a=parseKey(k); return `${a.getDate()} ${I18N[lang].months[a.getMonth()]}`; }
+/* Bloc accueil : semaine EN COURS, lecture seule, jours écoulés uniquement */
+function renderWeekGlance(){
+  const mount=document.getElementById('weekGlance'); if(!mount) return;
+  if(!state.periods.length){ mount.innerHTML=''; return; }
+  const wkStart=mondayOf(todayKey()); const today=todayKey();
+  const planH=planHabitsForWeek(wkStart);
+  if(!planH.length){ mount.innerHTML=''; return; }
+  let rows='';
+  for(const h of planH){ const s=habitWeekStats(h,wkStart,today);
+    if(s.actif===0){ rows+=`<div class="rtop" style="padding:6px 0"><span>${esc(h.name)}</span><span class="rr">—</span></div>`; continue; }
+    const broke=s.tenu<s.actif;
+    rows+=`<div class="rtop" style="padding:6px 0"><span>${esc(h.name)}</span>`+
+      (broke?`<span class="rr brk">${s.tenu}/${s.actif} · ${rv('broke')} ${shortDays(s.broken)}</span>`
+            :`<span class="rr" style="color:var(--ok)">${s.tenu}/${s.actif}</span>`)+`</div>`;
+  }
+  const ms=moodSplit(wkStart);
+  const moodHtml=`${rv('mood')} — ${rv('mood_worked')} <b>${ms.worked==null?'—':ms.worked.toFixed(1)}</b> · ${rv('mood_other')} <b>${ms.other==null?'—':ms.other.toFixed(1)}</b>`;
+  const canReview = true; // une semaine complète existe toujours (la précédente)
+  mount.innerHTML=`<div class="card">
+    <div class="glancehead"><h2 style="margin:0">${rv('glance_title')}</h2><span class="revsub">${weekRangeLabel(wkStart)}</span></div>
+    <div style="margin-top:8px">${rows}</div>
+    <div class="revmoodline">${moodHtml}</div>
+    ${canReview?`<button class="link" id="glanceOpen" style="margin-top:10px">${rv('open_review')} →</button>`:''}
+  </div>`;
+  const go=document.getElementById('glanceOpen'); if(go) go.onclick=()=>{ selectedWeek=lastCompletedWeekStart(); switchView('review'); };
+}
+function renderRecurring(){ const recs=computeRecurrences(); if(!recs.length) return '';
+  return `<div class="recbox">`+recs.slice(0,6).map(r=>`<div><b>${esc(r.habit.name)} → ${esc(r.trigger)}</b> · ${r.count} ${rv('of_suite')}${r.days.length?` (${shortDays(r.days)})`:''}</div>`).join('')+`</div>`; }
+function renderHistoryList(){
+  const weeks=Object.keys(state.reviews).sort().reverse();
+  if(!weeks.length) return `<p class="empty">${rv('hist_none')}</p>`;
+  const periodLabel=(pid)=>{ const idx=state.periods.findIndex(p=>p.id===pid); const p=state.periods[idx]; if(!p) return rv('plan_from')+' —';
+    const next=state.periods[idx+1]; if(next) return `${rv('plan_range')} ${weekRangeLabelDay(p.start)} – ${weekRangeLabelDay(addDaysK(next.start,-1))}`;
+    return `${rv('plan_from')} ${weekRangeLabelDay(p.start)}`; };
+  let html=''; let lastPid=undefined;
+  for(const w of weeks){ const r=state.reviews[w]; const pid=r.periodId||null;
+    if(pid!==lastPid){ html+=`<div class="revlbl" style="margin-top:12px">${periodLabel(pid)}</div>`; lastPid=pid; }
+    const items=r.items||{}; const parts=Object.keys(items).filter(hid=>items[hid]&&(items[hid].trigger||items[hid].decision)).map(hid=>{ const h=state.habits.find(x=>x.id===hid); const nm=h?h.name:'?'; const it=items[hid]; return `${esc(nm)}${it.trigger?'→'+esc(it.trigger):''}${it.decision?' · '+esc(decLabel(it.decision)):''}`; });
+    html+=`<div class="brow" style="padding:8px 0"><div class="rtop"><span>${weekRangeLabel(w)}</span><span class="rr" style="font-size:11px">${isLockedWeek(w)?rv('locked'):(parts.join(' | ')||'—')}</span></div></div>`;
+  }
+  return html;
+}
+function openPlanPicker(){
+  const box=document.getElementById('revPicker'); if(!box) return;
+  if(planPickSel===null) planPickSel=new Set(activeHabits().map(h=>h.id));
+  box.innerHTML=`<div class="revpicker"><div class="revlbl">${rv('picker_title')}</div><div class="pickitems">`+
+    activeHabits().map(h=>`<label class="pickrow"><input type="checkbox" data-pick="${h.id}" ${planPickSel.has(h.id)?'checked':''}/> <span class="cdot" style="background:${h.color}"></span> ${esc(h.name)}</label>`).join('')+
+    `</div><div class="pickbtns"><button class="btn" id="pickOk">${rv('picker_ok')}</button> <button class="link" id="pickCancel">${rv('picker_cancel')}</button></div></div>`;
+}
+function wireReview(mount){
+  const rev=document.getElementById('revRevise'); if(rev) rev.onclick=()=>{ planPickerOpen=!planPickerOpen; if(!planPickerOpen){planPickSel=null; const b=document.getElementById('revPicker'); if(b)b.innerHTML='';} else openPlanPicker(); };
+  const prev=document.getElementById('revPrev'); if(prev) prev.onclick=()=>{ selectedWeek=addDaysK(selectedWeek,-7); renderReview(); };
+  const next=document.getElementById('revNext'); if(next) next.onclick=()=>{ if(selectedWeek<lastCompletedWeekStart()){ selectedWeek=addDaysK(selectedWeek,7); renderReview(); } };
+  const acqT=document.getElementById('revAcqToggle'); if(acqT) acqT.onclick=()=>{ acqOpen=!acqOpen; renderReview(); };
+  const te=document.getElementById('revTrigEdit'); if(te) te.onclick=()=>{ trigEditOpen=!trigEditOpen; renderReview(); };
+  const ted=document.getElementById('trigEditDone'); if(ted) ted.onclick=()=>{ trigEditOpen=false; renderReview(); };
+  const tab=document.getElementById('trigAddBtn'); if(tab) tab.onclick=()=>{ const inp=document.getElementById('trigAddInput'); const v=(inp.value||'').trim(); if(v){ state.settings.triggers=(state.settings.triggers||[]).concat([v]); saveLocal(); commitSettings(); renderReview(); } };
+  mount.querySelectorAll('[data-trigdel]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.trigdel); state.settings.triggers.splice(i,1); saveLocal(); commitSettings(); renderReview(); });
+  mount.querySelectorAll('[data-workday]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.workday); const set=new Set(state.settings.workdays||[]); set.has(i)?set.delete(i):set.add(i); state.settings.workdays=[...set].sort(); saveLocal(); commitSettings(); renderReview(); });
+  mount.querySelectorAll('[data-trig]').forEach(b=>b.onclick=()=>{ const hid=b.dataset.trig, val=b.dataset.val; const cur=(getReview(selectedWeek)||{items:{}}).items[hid]; setReviewItem(selectedWeek,hid,'trigger',(cur&&cur.trigger===val)?null:val); renderReview(); });
+  mount.querySelectorAll('[data-decfor]').forEach(b=>{ if(b.disabled) return; b.onclick=()=>{ const hid=b.dataset.decfor, dk=b.dataset.dec; setReviewItem(selectedWeek,hid,'decision',dk); renderReview(); }; });
+  const pOk=document.getElementById('pickOk'); if(pOk) pOk.onclick=()=>{ const pd={id:id(), start:todayKey(), habitIds:[...planPickSel]}; state.periods.push(pd); state.periods.sort((a,b)=>a.start<b.start?-1:1); saveLocal(); commitPeriod(pd); planPickerOpen=false; planPickSel=null; selectedWeek=lastCompletedWeekStart(); renderReview(); };
+  const pCancel=document.getElementById('pickCancel'); if(pCancel) pCancel.onclick=()=>{ planPickerOpen=false; planPickSel=null; const b=document.getElementById('revPicker'); if(b)b.innerHTML=''; };
+  mount.querySelectorAll('[data-pick]').forEach(c=>c.onchange=()=>{ const hid=c.dataset.pick; if(c.checked) planPickSel.add(hid); else planPickSel.delete(hid); });
+}
 
 let curDay=todayKey();
 const MOOD={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
@@ -826,7 +1160,7 @@ function renderHabits(){ renderSwatches(); renderDaySel(); renderHabitTable(); }
 function switchView(v){
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
-  if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits();
+  if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits(); if(v==='review')renderReview();
 }
 document.querySelectorAll('.tab').forEach(x=>x.addEventListener('click',()=>switchView(x.dataset.view)));
 document.getElementById('rangeSel').addEventListener('click',e=>{ const b=e.target.closest('[data-range]'); if(!b)return;
