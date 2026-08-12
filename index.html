@@ -540,27 +540,27 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 
 /* ---- Supabase : lecture de l'état complet ---- */
 async function supaGetState(){
-  const [h,l,d,tk,pe,rv,se] = await Promise.all([
-    supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,active_days').eq('archived',false).order('position'),
+  // Habitudes — repli si la colonne 'rodage' n'existe pas encore
+  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,active_days').eq('archived',false).order('position');
+  if(h.error) h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position');
+  const [l,d,tk] = await Promise.all([
     supa.from('logs').select('day,habit_id,value'),
     supa.from('days').select('day,mood,note'),
-    supa.from('tasks').select('id,day,txt,done').order('position'),
-    supa.from('periods').select('id,start,habit_ids'),
-    supa.from('reviews').select('week_start,period_id,items'),
-    supa.from('settings').select('workdays,triggers,last_revision')
+    supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
-  for(const r of [h,l,d,tk,pe,rv,se]) if(r.error) throw r.error;
+  for(const r of [h,l,d,tk]) if(r.error) throw r.error;
   const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
   for(const r of d.data){ touch(r.day); days[r.day].mood = r.mood==null?null:Number(r.mood); days[r.day].note = r.note||''; }
   for(const r of tk.data){ touch(r.day); days[r.day].tasks.push({id:r.id, t:r.txt, done:!!r.done}); }
-  const periods = (pe.data||[]).map(x=>({id:x.id, start:x.start, habitIds:(x.habit_ids!=null&&x.habit_ids!=='')?String(x.habit_ids).split(','):[]})).sort((a,b)=>a.start<b.start?-1:1);
-  const reviews = {};
-  for(const r of (rv.data||[])){ let items={}; try{ items=r.items?JSON.parse(r.items):{}; }catch{} reviews[r.week_start]={periodId:r.period_id||null, items}; }
-  const s0 = (se.data&&se.data[0])||{};
-  const settings = { workdays:(s0.workdays!=null&&s0.workdays!=='')?String(s0.workdays).split(',').map(Number):[1,2,3], triggers:(s0.triggers!=null&&s0.triggers!=='')?String(s0.triggers).split('|'):null, lastRevision:s0.last_revision||null };
+  // Revue — tolérant : table/colonne absente => valeurs par défaut, l'app ne se vide pas
+  let periods=[], reviews={}, settings={ workdays:[1,2,3], triggers:null, lastRevision:null };
+  try{ const pe=await supa.from('periods').select('id,start,habit_ids'); if(!pe.error) periods=(pe.data||[]).map(x=>({id:x.id,start:x.start,habitIds:(x.habit_ids!=null&&x.habit_ids!=='')?String(x.habit_ids).split(','):[]})).sort((a,b)=>a.start<b.start?-1:1); }catch(e){}
+  try{ const rv=await supa.from('reviews').select('week_start,period_id,items'); if(!rv.error){ for(const r of (rv.data||[])){ let items={}; try{ items=r.items?JSON.parse(r.items):{}; }catch{} reviews[r.week_start]={periodId:r.period_id||null, items}; } } }catch(e){}
+  try{ let se=await supa.from('settings').select('workdays,triggers,last_revision'); if(se.error) se=await supa.from('settings').select('workdays,triggers');
+    if(!se.error){ const s0=(se.data&&se.data[0])||{}; settings={ workdays:(s0.workdays!=null&&s0.workdays!=='')?String(s0.workdays).split(',').map(Number):[1,2,3], triggers:(s0.triggers!=null&&s0.triggers!=='')?String(s0.triggers).split('|'):null, lastRevision:s0.last_revision||null }; } }catch(e){}
   return { habits, days, periods, reviews, settings };
 }
 
@@ -870,7 +870,7 @@ const REV={
     lock_note:'Décisions verrouillées sur « ne rien changer » les 2 semaines suivant une révision de plan : pas de changement avant une mesure stable.',
     acq:'Acquises', collapsed:'replié', workdays:'Jours travaillés', edit_trig:'Modifier les déclencheurs', add_trig:'ajouter…', done_edit:'terminé',
     hist:'Historique des revues', hist_none:'Aucune revue pour l\'instant.', plan_from:'Plan depuis', plan_range:'Plan du', weeks:'sem.', of_suite:'semaines de suite', recdays:'jours',
-    glance_title:'Cette semaine', open_review:'Ouvrir la revue', picker_title:'Habitudes en rodage pour ce plan', picker_ok:'Créer la période', picker_cancel:'annuler', picker_from:"S'applique à partir de la semaine :", edit_plan:"Modifier le plan", revised_on:"révisé le", not_revised:"plan non révisé", rodage_title:"Habitudes en rodage (les décochées deviennent acquises)", mark_revised:"J'ai révisé aujourd'hui" },
+    glance_title:'Cette semaine', open_review:'Ouvrir la revue', picker_title:'Habitudes en rodage pour ce plan', picker_ok:'Créer la période', picker_cancel:'annuler', picker_from:"S'applique à partir de la semaine :", edit_plan:"Modifier le plan", revised_on:"révisé le", not_revised:"plan non révisé", rodage_title:"Habitudes en rodage (les décochées deviennent acquises)", mark_revised:"J'ai révisé aujourd'hui", in_progress:"semaine en cours · jours écoulés" },
   en:{ title:'Weekly review', revise:'Revise plan', plan_since:'current plan · since', planhabits:'Plan habits',
     data_none:'No habit in the plan. Use “Revise plan”.', trigger:'Trigger', decision:'Decision',
     d_rien:'change nothing', d_ajouter:'add a habit', d_reviser:'revise a rule',
@@ -879,7 +879,7 @@ const REV={
     lock_note:'Decisions locked to “change nothing” for 2 weeks after a plan revision: no change before a stable measure.',
     acq:'Acquired', collapsed:'collapsed', workdays:'Work days', edit_trig:'Edit triggers', add_trig:'add…', done_edit:'done',
     hist:'Review history', hist_none:'No review yet.', plan_from:'Plan since', plan_range:'Plan', weeks:'wk', of_suite:'weeks in a row', recdays:'days',
-    glance_title:'This week', open_review:'Open review', picker_title:'Habits in rotation for this plan', picker_ok:'Create period', picker_cancel:'cancel', picker_from:'Applies from week:', edit_plan:'Edit plan', revised_on:'revised on', not_revised:'plan not revised', rodage_title:'Habits in training (unchecked become acquired)', mark_revised:'Revised today' },
+    glance_title:'This week', open_review:'Open review', picker_title:'Habits in rotation for this plan', picker_ok:'Create period', picker_cancel:'cancel', picker_from:'Applies from week:', edit_plan:'Edit plan', revised_on:'revised on', not_revised:'plan not revised', rodage_title:'Habits in training (unchecked become acquired)', mark_revised:'Revised today', in_progress:'current week · days so far' },
   ar:{ title:'المراجعة الأسبوعية', revise:'مراجعة الخطة', plan_since:'الخطة الحالية · منذ', planhabits:'عادات الخطة',
     data_none:'لا عادة في الخطة. استخدمي «مراجعة الخطة».', trigger:'المُحفِّز', decision:'القرار',
     d_rien:'عدم تغيير شيء', d_ajouter:'إضافة عادة', d_reviser:'مراجعة قاعدة',
@@ -888,7 +888,7 @@ const REV={
     lock_note:'القرارات مقفلة على «عدم تغيير شيء» أسبوعين بعد مراجعة الخطة: لا تغيير قبل قياس مستقر.',
     acq:'مكتسبة', collapsed:'مطوي', workdays:'أيام العمل', edit_trig:'تعديل المحفِّزات', add_trig:'إضافة…', done_edit:'تم',
     hist:'سجل المراجعات', hist_none:'لا مراجعة بعد.', plan_from:'الخطة منذ', plan_range:'الخطة', weeks:'أسبوع', of_suite:'أسابيع متتالية', recdays:'أيام',
-    glance_title:'هذا الأسبوع', open_review:'فتح المراجعة', picker_title:'العادات قيد التمرين لهذه الخطة', picker_ok:'إنشاء الفترة', picker_cancel:'إلغاء', picker_from:'يبدأ من أسبوع:', edit_plan:'تعديل الخطة', revised_on:'روجعت في', not_revised:'لم تُراجع', rodage_title:'العادات قيد التمرين (غير المحددة تصبح مكتسبة)', mark_revised:'راجعت اليوم' }
+    glance_title:'هذا الأسبوع', open_review:'فتح المراجعة', picker_title:'العادات قيد التمرين لهذه الخطة', picker_ok:'إنشاء الفترة', picker_cancel:'إلغاء', picker_from:'يبدأ من أسبوع:', edit_plan:'تعديل الخطة', revised_on:'روجعت في', not_revised:'لم تُراجع', rodage_title:'العادات قيد التمرين (غير المحددة تصبح مكتسبة)', mark_revised:'راجعت اليوم', in_progress:'الأسبوع الجاري · الأيام المنقضية' }
 };
 function rv(k){ return (REV[lang]&&REV[lang][k])||REV.fr[k]||k; }
 function decLabel(d){ return d==='rien'?rv('d_rien'):d==='ajouter'?rv('d_ajouter'):rv('d_reviser'); }
@@ -987,7 +987,10 @@ function renderReview(){
   const mount=document.getElementById('reviewMount'); if(!mount) return;
   if(!selectedWeek) selectedWeek=lastCompletedWeekStart();
   const locked=isLockedWeek(selectedWeek);
-  const canNext = selectedWeek < lastCompletedWeekStart();
+  const curMonday=mondayOf(todayKey());
+  const isCurrent = selectedWeek===curMonday;
+  const until = isCurrent ? todayKey() : undefined;   // semaine en cours : jours écoulés uniquement
+  const canNext = selectedWeek < curMonday;
   const planH=planHabitsForWeek(selectedWeek);
   const acqH=acquiredHabitsForWeek(selectedWeek);
   const review=getReview(selectedWeek)||{items:{}};
@@ -998,7 +1001,7 @@ function renderReview(){
 
   let statsHtml='';
   for(const h of planH){
-    const s=habitWeekStats(h,selectedWeek);
+    const s=habitWeekStats(h,selectedWeek,until);
     const it=(review.items||{})[h.id]||{};
     if(s.actif===0){ statsHtml+=`<div class="brow"><div class="rtop"><span>${esc(h.name)}</span><span class="rr">${rv('noactive')}</span></div></div>`; continue; }
     const broke = s.tenu<s.actif;
@@ -1020,7 +1023,7 @@ function renderReview(){
   let acqHtml='';
   if(acqH.length){
     acqHtml=`<div class="revacqhead" id="revAcqToggle"><span><i class="tri">${acqOpen?'▾':'▸'}</i> ${rv('acq')} (${acqH.length})</span><span class="revlbl">${acqOpen?'':rv('collapsed')}</span></div>`;
-    if(acqOpen){ acqHtml+='<div class="revacqbody">'+acqH.map(h=>{const s=habitWeekStats(h,selectedWeek); return `<div class="rtop" style="padding:5px 0"><span>${esc(h.name)}</span><span class="rr">${s.actif?`${s.tenu}/${s.actif}`:'—'}</span></div>`;}).join('')+'</div>'; }
+    if(acqOpen){ acqHtml+='<div class="revacqbody">'+acqH.map(h=>{const s=habitWeekStats(h,selectedWeek,until); return `<div class="rtop" style="padding:5px 0"><span>${esc(h.name)}</span><span class="rr">${s.actif?`${s.tenu}/${s.actif}`:'—'}</span></div>`;}).join('')+'</div>'; }
   }
 
   const wdBtns=WEEK_ORDER.map(i=>`<button class="revchip sm${(state.settings.workdays||[]).includes(i)?' on':''}" data-workday="${i}">${I18N[lang].days[i]}</button>`).join('');
@@ -1049,6 +1052,7 @@ function renderReview(){
       <button class="daynav" id="revPrev" aria-label="prev">‹</button>
       <div style="text-align:center">
         <div class="revweek">${weekRangeLabel(selectedWeek)}</div>
+        ${isCurrent?`<div class="revlockline" style="color:#2E5E9C">${rv('in_progress')}</div>`:''}
         ${locked?`<div class="revlockline brk">⊘ ${rv('locked')}</div>`:''}
       </div>
       <button class="daynav" id="revNext" aria-label="next" ${canNext?'':'disabled style="opacity:.35"'}>›</button>
@@ -1121,7 +1125,7 @@ function renderHistoryList(){
 function wireReview(mount){
   const rev=document.getElementById('revRevise'); if(rev) rev.onclick=()=>{ rodageOpen=!rodageOpen; renderReview(); };
   const prev=document.getElementById('revPrev'); if(prev) prev.onclick=()=>{ selectedWeek=addDaysK(selectedWeek,-7); renderReview(); };
-  const next=document.getElementById('revNext'); if(next) next.onclick=()=>{ if(selectedWeek<lastCompletedWeekStart()){ selectedWeek=addDaysK(selectedWeek,7); renderReview(); } };
+  const next=document.getElementById('revNext'); if(next) next.onclick=()=>{ if(selectedWeek<mondayOf(todayKey())){ selectedWeek=addDaysK(selectedWeek,7); renderReview(); } };
   const acqT=document.getElementById('revAcqToggle'); if(acqT) acqT.onclick=()=>{ acqOpen=!acqOpen; renderReview(); };
   const te=document.getElementById('revTrigEdit'); if(te) te.onclick=()=>{ trigEditOpen=!trigEditOpen; renderReview(); };
   const ted=document.getElementById('trigEditDone'); if(ted) ted.onclick=()=>{ trigEditOpen=false; renderReview(); };
