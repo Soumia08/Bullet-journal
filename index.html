@@ -193,6 +193,7 @@
   #reviewMount .periodrow{ display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-2);font-family:var(--mono);padding:4px 0; }
   #reviewMount .periodrow .tx{ border:none;background:none;color:var(--ink-3);cursor:pointer;font-size:13px; }
   #reviewMount .pickrow{ display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px; }
+  #reviewMount .pickrow .since{ font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-inline-start:auto;white-space:nowrap; }
   #reviewMount .pickrow .cdot{ width:10px;height:10px;border-radius:50%;display:inline-block; }
   #reviewMount .pickbtns{ margin-top:10px; }
   #reviewMount .trigeditor{ background:var(--paper);border:1.5px solid var(--rule);border-radius:10px;padding:10px;margin-top:8px; }
@@ -870,7 +871,7 @@ const REV={
     lock_note:'Décisions verrouillées sur « ne rien changer » les 2 semaines suivant une révision de plan : pas de changement avant une mesure stable.',
     acq:'Acquises', collapsed:'replié', workdays:'Jours travaillés', edit_trig:'Modifier les déclencheurs', add_trig:'ajouter…', done_edit:'terminé',
     hist:'Historique des revues', hist_none:'Aucune revue pour l\'instant.', plan_from:'Plan depuis', plan_range:'Plan du', weeks:'sem.', of_suite:'semaines de suite', recdays:'jours',
-    glance_title:'Cette semaine', open_review:'Ouvrir la revue', picker_title:'Habitudes en rodage pour ce plan', picker_ok:'Créer la période', picker_cancel:'annuler', picker_from:"S'applique à partir de la semaine :", edit_plan:"Modifier le plan", revised_on:"révisé le", not_revised:"plan non révisé", rodage_title:"Habitudes en rodage (les décochées deviennent acquises)", mark_revised:"J'ai révisé aujourd'hui", in_progress:"semaine en cours · jours écoulés" },
+    glance_title:'Cette semaine', open_review:'Ouvrir la revue', picker_title:'Habitudes en rodage pour ce plan', picker_ok:'Créer la période', picker_cancel:'annuler', picker_from:"S'applique à partir de la semaine :", edit_plan:"Modifier le plan", revised_on:"révisé le", not_revised:"plan non révisé", rodage_title:"Habitudes en rodage (les décochées deviennent acquises)", mark_revised:"J'ai révisé aujourd'hui", in_progress:"semaine en cours · jours écoulés", since:"suivi depuis" },
   en:{ title:'Weekly review', revise:'Revise plan', plan_since:'current plan · since', planhabits:'Plan habits',
     data_none:'No habit in the plan. Use “Revise plan”.', trigger:'Trigger', decision:'Decision',
     d_rien:'change nothing', d_ajouter:'add a habit', d_reviser:'revise a rule',
@@ -879,7 +880,7 @@ const REV={
     lock_note:'Decisions locked to “change nothing” for 2 weeks after a plan revision: no change before a stable measure.',
     acq:'Acquired', collapsed:'collapsed', workdays:'Work days', edit_trig:'Edit triggers', add_trig:'add…', done_edit:'done',
     hist:'Review history', hist_none:'No review yet.', plan_from:'Plan since', plan_range:'Plan', weeks:'wk', of_suite:'weeks in a row', recdays:'days',
-    glance_title:'This week', open_review:'Open review', picker_title:'Habits in rotation for this plan', picker_ok:'Create period', picker_cancel:'cancel', picker_from:'Applies from week:', edit_plan:'Edit plan', revised_on:'revised on', not_revised:'plan not revised', rodage_title:'Habits in training (unchecked become acquired)', mark_revised:'Revised today', in_progress:'current week · days so far' },
+    glance_title:'This week', open_review:'Open review', picker_title:'Habits in rotation for this plan', picker_ok:'Create period', picker_cancel:'cancel', picker_from:'Applies from week:', edit_plan:'Edit plan', revised_on:'revised on', not_revised:'plan not revised', rodage_title:'Habits in training (unchecked become acquired)', mark_revised:'Revised today', in_progress:'current week · days so far', since:'since' },
   ar:{ title:'المراجعة الأسبوعية', revise:'مراجعة الخطة', plan_since:'الخطة الحالية · منذ', planhabits:'عادات الخطة',
     data_none:'لا عادة في الخطة. استخدمي «مراجعة الخطة».', trigger:'المُحفِّز', decision:'القرار',
     d_rien:'عدم تغيير شيء', d_ajouter:'إضافة عادة', d_reviser:'مراجعة قاعدة',
@@ -888,7 +889,7 @@ const REV={
     lock_note:'القرارات مقفلة على «عدم تغيير شيء» أسبوعين بعد مراجعة الخطة: لا تغيير قبل قياس مستقر.',
     acq:'مكتسبة', collapsed:'مطوي', workdays:'أيام العمل', edit_trig:'تعديل المحفِّزات', add_trig:'إضافة…', done_edit:'تم',
     hist:'سجل المراجعات', hist_none:'لا مراجعة بعد.', plan_from:'الخطة منذ', plan_range:'الخطة', weeks:'أسبوع', of_suite:'أسابيع متتالية', recdays:'أيام',
-    glance_title:'هذا الأسبوع', open_review:'فتح المراجعة', picker_title:'العادات قيد التمرين لهذه الخطة', picker_ok:'إنشاء الفترة', picker_cancel:'إلغاء', picker_from:'يبدأ من أسبوع:', edit_plan:'تعديل الخطة', revised_on:'روجعت في', not_revised:'لم تُراجع', rodage_title:'العادات قيد التمرين (غير المحددة تصبح مكتسبة)', mark_revised:'راجعت اليوم', in_progress:'الأسبوع الجاري · الأيام المنقضية' }
+    glance_title:'هذا الأسبوع', open_review:'فتح المراجعة', picker_title:'العادات قيد التمرين لهذه الخطة', picker_ok:'إنشاء الفترة', picker_cancel:'إلغاء', picker_from:'يبدأ من أسبوع:', edit_plan:'تعديل الخطة', revised_on:'روجعت في', not_revised:'لم تُراجع', rodage_title:'العادات قيد التمرين (غير المحددة تصبح مكتسبة)', mark_revised:'راجعت اليوم', in_progress:'الأسبوع الجاري · الأيام المنقضية', since:'منذ' }
 };
 function rv(k){ return (REV[lang]&&REV[lang][k])||REV.fr[k]||k; }
 function decLabel(d){ return d==='rien'?rv('d_rien'):d==='ajouter'?rv('d_ajouter'):rv('d_reviser'); }
@@ -904,8 +905,13 @@ function weekRangeLabel(startK){ const a=parseKey(startK), b=parseKey(addDaysK(s
 function shortDays(wds){ return wds.map(w=>I18N[lang].days[w]).join(', '); }
 
 /* ---- modèle simple : rodage / acquise + marqueur de révision ---- */
-function planHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage!==false); }
-function acquiredHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage===false); }
+/* Date de 1re donnée d'une habitude -> "suivie depuis" (sinon : semaine en cours) */
+function habitFirstDay(h){ let first=null; for(const k in state.days){ const dd=state.days[k]; const v=dd&&dd.h&&dd.h[h.id];
+  if(v!=null&&v!==''&&v!==false&&v!==SKIP){ if(!first||k<first) first=k; } } return first; }
+function habitStartWeek(h){ const f=habitFirstDay(h); return f? mondayOf(f) : mondayOf(todayKey()); }
+// une semaine n'affiche que les habitudes déjà suivies à ce moment-là
+function planHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage!==false && habitStartWeek(h)<=startK); }
+function acquiredHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage===false && habitStartWeek(h)<=startK); }
 // Verrou : les 2 semaines suivant la dernière révision du plan
 function isLockedWeek(startK){ const lr=state.settings.lastRevision; if(!lr) return false;
   const rm=mondayOf(lr); return startK===rm || startK===addDaysK(rm,7); }
@@ -1037,7 +1043,7 @@ function renderReview(){
   let rodagePanel='';
   if(rodageOpen){
     rodagePanel=`<div class="revpicker"><div class="revlbl">${rv('rodage_title')}</div><div class="pickitems">`+
-      activeHabits().map(h=>`<label class="pickrow"><input type="checkbox" data-rodage="${h.id}" ${h.rodage!==false?'checked':''}/> <span class="cdot" style="background:${h.color}"></span> ${esc(h.name)}</label>`).join('')+
+      activeHabits().map(h=>`<label class="pickrow"><input type="checkbox" data-rodage="${h.id}" ${h.rodage!==false?'checked':''}/> <span class="cdot" style="background:${h.color}"></span> ${esc(h.name)} <span class="since">· ${rv('since')} ${weekRangeLabelDay(habitStartWeek(h))}</span></label>`).join('')+
       `</div><div class="pickbtns"><button class="pillbtn" id="markRev">${rv('mark_revised')}</button> <button class="link" id="rodageDone">${rv('done_edit')}</button></div></div>`;
   }
 
