@@ -975,7 +975,9 @@ function computeRecurrences(){
       let run=[]; let lastWeek=null;
       const flush=()=>{ if(run.length>=2){ const days=new Set(); run.forEach(w=>habitWeekStats(h,w).broken.forEach(d=>days.add(d)));
           out.push({habit:h, trigger:tv, count:run.length, days:[...days].sort()}); } run=[]; };
-      for(const w of weeks){ const it=(state.reviews[w].items||{})[h.id]; const has=it&&itemTriggers(it).includes(tv);
+      for(const w of weeks){ const it=(state.reviews[w].items||{})[h.id];
+        let has = it && itemTriggers(it).includes(tv) && habitStartWeek(h)<=w;
+        if(has){ const s=habitWeekStats(h,w); if(s.actif>0 && s.tenu>=s.actif) has=false; }
         if(!has){ flush(); lastWeek=null; continue; }
         const consecutive = lastWeek!==null && w===addDaysK(lastWeek,7);
         if(consecutive) run.push(w); else { flush(); run=[w]; }
@@ -1112,21 +1114,26 @@ function renderHistoryList(){
   const weeks=Object.keys(state.reviews).sort().reverse();
   if(!weeks.length) return `<p class="empty">${rv('hist_none')}</p>`;
   const decClass=d=>d==='rien'?'neutral':'change';
+  const curMon=mondayOf(todayKey());
   let html='';
-  for(const w of weeks){ const r=state.reviews[w]; const items=r.items||{};
-    const hids=Object.keys(items).filter(hid=>items[hid]&&(itemTriggers(items[hid]).length||items[hid].decision));
+  for(const w of weeks){ const items=state.reviews[w].items||{};
+    const until = w===curMon ? todayKey() : undefined;
+    const scoped=[...planHabitsForWeek(w), ...acquiredHabitsForWeek(w)];
+    const rows=[];
+    for(const h of scoped){ const it=items[h.id]; if(!it) continue;
+      const tg=itemTriggers(it); if(!tg.length && !it.decision) continue;
+      const s=habitWeekStats(h,w,until); if(s.actif>0 && s.tenu>=s.actif) continue; // devenue tenue -> plus de motif
+      const trTxt=tg.length?`<span class="hi-trig">${tg.map(esc).join(', ')}</span>`:'';
+      const decTxt=it.decision?`<span class="hi-dec ${decClass(it.decision)}">${esc(decLabel(it.decision))}</span>`:'';
+      const arrow=(tg.length&&it.decision)?`<span class="hi-arrow">→</span>`:'';
+      rows.push(`<div class="histitem"><span class="hi-name">${esc(h.name)}</span><span class="hi-meta">${trTxt}${arrow}${decTxt}</span></div>`);
+    }
     const locked=isLockedWeek(w);
-    let inner;
-    if(!hids.length){ inner=`<div class="histmuted">${locked?rv('locked'):'—'}</div>`; }
-    else { inner=hids.map(hid=>{ const h=state.habits.find(x=>x.id===hid); const nm=h?h.name:'?'; const it=items[hid]; const tg=itemTriggers(it);
-        const trTxt=tg.length?`<span class="hi-trig">${tg.map(esc).join(', ')}</span>`:'';
-        const decTxt=it.decision?`<span class="hi-dec ${decClass(it.decision)}">${esc(decLabel(it.decision))}</span>`:'';
-        const arrow=(tg.length&&it.decision)?`<span class="hi-arrow">→</span>`:'';
-        return `<div class="histitem"><span class="hi-name">${esc(nm)}</span><span class="hi-meta">${trTxt}${arrow}${decTxt}</span></div>`;
-      }).join(''); }
+    if(!rows.length && !locked) continue;               // semaine sans motif -> on n'encombre pas
+    const inner = rows.length?rows.join(''):`<div class="histmuted">${rv('locked')}</div>`;
     html+=`<div class="histweek"><div class="histweek-h">${weekRangeLabel(w)}${locked?` <span class="histlock">⊘</span>`:''}</div>${inner}</div>`;
   }
-  return html;
+  return html || `<p class="empty">${rv('hist_none')}</p>`;
 }
 function wireReview(mount){
   const rev=document.getElementById('revRevise'); if(rev) rev.onclick=()=>{ rodageOpen=!rodageOpen; renderReview(); };
