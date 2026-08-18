@@ -836,9 +836,11 @@ function renderCharts(){
 
   // Taux de complétion (pondéré par importance) + moyenne de la période
   const todayK=todayKey();
-  // le jour en cours n'est pas terminé -> on ne le trace pas et on l'exclut de la moyenne
-  const comp=keys.map(k=>k===todayK?null:Math.round(completion(k)*100));
-  const done=comp.filter(v=>v!=null);
+  // le jour en cours s'affiche une fois l'humeur saisie (signal de journée bouclée), mais reste hors moyenne
+  const td=dayRO(todayK);
+  const todayHasData = !!td && td.mood!=null;
+  const comp=keys.map(k=> (k===todayK && !todayHasData) ? null : Math.round(completion(k)*100));
+  const done=keys.filter(k=>k!==todayK).map(k=>Math.round(completion(k)*100));
   const avg=done.length?Math.round(done.reduce((a,b)=>a+b,0)/done.length):0;
   const av=document.getElementById('rangeAvg'); if(av) av.textContent=avg+'%';
 
