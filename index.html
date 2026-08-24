@@ -540,9 +540,10 @@ const KV = {
 const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 
 /* ---- Supabase : lecture de l'état complet ---- */
+function parseHist(s){ if(s==null||s==='') return null; try{ const a=JSON.parse(s); return Array.isArray(a)&&a.length?a:null; }catch(e){ return null; } }
 async function supaGetState(){
   // Habitudes — repli si la colonne 'rodage' n'existe pas encore
-  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,active_days').eq('archived',false).order('position');
+  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,days_hist,active_days').eq('archived',false).order('position');
   if(h.error) h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position');
   const [l,d,tk] = await Promise.all([
     supa.from('logs').select('day,habit_id,value'),
@@ -550,7 +551,7 @@ async function supaGetState(){
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,daysHist:parseHist(x.days_hist),activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -569,7 +570,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,days_hist:p.daysHist?JSON.stringify(p.daysHist):null,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -662,14 +663,21 @@ function isDone(h,v){ if(v==null||v===false||v===SKIP)return false; if(h.type===
 function isExceeded(h,v){ return h.type==='quant' && v!=null && v!==SKIP && v!=='' && Number(v) > Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // Jours de la semaine où l'habitude s'applique (getDay: 0=dim..6=sam). Absent => tous.
-function activeDaysOf(h){ return (Array.isArray(h.activeDays)&&h.activeDays.length)?h.activeDays:[0,1,2,3,4,5,6]; }
+function activeDaysOf(h,k){
+  if(h.daysHist && h.daysHist.length){
+    let e=h.daysHist[0];
+    for(const x of h.daysHist){ if(!k || x.from<=k) e=x; else break; }
+    return (Array.isArray(e.days)&&e.days.length)?e.days:[0,1,2,3,4,5,6];
+  }
+  return (Array.isArray(h.activeDays)&&h.activeDays.length)?h.activeDays:[0,1,2,3,4,5,6];
+}
 // Est-ce que l'habitude "compte" ce jour-là ? (planning + skip + exception si renseignée)
 function counts(h,k){
   if(h.active===false) return false;              // OFF global
   const v=hv(k,h.id);
   if(v===SKIP) return false;                      // "ne pas compter aujourd'hui"
   if(hasLog(h,v)) return true;                    // faite/saisie -> compte même hors planning
-  return activeDaysOf(h).includes(parseKey(k).getDay()); // sinon : selon le planning
+  return activeDaysOf(h,k).includes(parseKey(k).getDay()); // sinon : selon le planning
 }
 // Poids selon l'importance : 1 -> 100%, 4 -> 75%, 2 -> 50%, 3 -> 25%
 // (4 ajouté après coup pour le 75% ; les niveaux 1/2/3 gardent leur sens d'origine)
@@ -718,7 +726,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6]}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6],daysHist:Array.isArray(h.daysHist)?h.daysHist:null}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitPeriod(pd){ push('period', {id:pd.id,start:pd.start,habitIds:pd.habitIds||[]}); }
 function commitPeriodDel(id){ push('periodDel', {id}); }
@@ -921,11 +929,12 @@ function markRevision(){ state.settings.lastRevision=todayKey(); saveLocal(); co
 
 /* ---- stats d'une habitude sur une semaine ---- */
 function habitWeekStats(h,startK,untilK){ let actif=0,tenu=0; const broken=[]; const end=untilK||addDaysK(startK,6);
-  for(const k of weekDatesK(startK)){ if(k>end) break; const v=hv(k,h.id);
-    if(h.active===false) continue; if(v===SKIP) continue;
-    const scheduled=activeDaysOf(h).includes(parseKey(k).getDay());
-    if(!scheduled && !hasLog(h,v)) continue;      // jour non actif -> hors dénominateur
-    actif++; if(isHeld(h,v)) tenu++; else broken.push(parseKey(k).getDay());
+  for(const k of weekDatesK(startK)){ if(k>end) break; if(h.active===false) continue;
+    const v=hv(k,h.id); if(v===SKIP) continue;
+    const scheduled=activeDaysOf(h,k).includes(parseKey(k).getDay());
+    const held=isHeld(h,v);
+    if(scheduled){ actif++; if(held) tenu++; else broken.push(parseKey(k).getDay()); } // jour planifié -> dénominateur
+    else if(hasLog(h,v) && held){ tenu++; }                                             // exception hors-planning tenue -> bonus au numérateur seulement
   }
   return {actif,tenu,broken};
 }
@@ -979,7 +988,7 @@ function computeRecurrences(){
           out.push({habit:h, trigger:tv, count:run.length, days:[...days].sort()}); } run=[]; };
       for(const w of weeks){ const it=(state.reviews[w].items||{})[h.id];
         let has = it && itemTriggers(it).includes(tv) && habitStartWeek(h)<=w;
-        if(has){ const s=habitWeekStats(h,w); if(s.actif>0 && s.tenu>=s.actif) has=false; }
+        if(has){ const s=habitWeekStats(h,w); if(!s.broken.length) has=false; }
         if(!has){ flush(); lastWeek=null; continue; }
         const consecutive = lastWeek!==null && w===addDaysK(lastWeek,7);
         if(consecutive) run.push(w); else { flush(); run=[w]; }
@@ -1014,7 +1023,7 @@ function renderReview(){
     const s=habitWeekStats(h,selectedWeek,until);
     const it=(review.items||{})[h.id]||{};
     if(s.actif===0){ statsHtml+=`<div class="brow"><div class="rtop"><span>${esc(h.name)}</span><span class="rr">${rv('noactive')}</span></div></div>`; continue; }
-    const broke = s.tenu<s.actif;
+    const broke = s.broken.length>0;
     let right = broke? `<span class="rr brk">${s.tenu}/${s.actif} · ${rv('broke')} ${shortDays(s.broken)}</span>` : `<span class="rr" style="color:var(--ok)">${s.tenu}/${s.actif} · ${rv('held')}</span>`;
     let body='';
     if(broke){
@@ -1095,7 +1104,7 @@ function renderWeekGlance(){
   let rows='';
   for(const h of planH){ const s=habitWeekStats(h,wkStart,today);
     if(s.actif===0){ rows+=`<div class="rtop" style="padding:6px 0"><span>${esc(h.name)}</span><span class="rr">—</span></div>`; continue; }
-    const broke=s.tenu<s.actif;
+    const broke=s.broken.length>0;
     rows+=`<div class="rtop" style="padding:6px 0"><span>${esc(h.name)}</span>`+
       (broke?`<span class="rr brk">${s.tenu}/${s.actif} · ${rv('broke')} ${shortDays(s.broken)}</span>`
             :`<span class="rr" style="color:var(--ok)">${s.tenu}/${s.actif}</span>`)+`</div>`;
@@ -1124,7 +1133,7 @@ function renderHistoryList(){
     const rows=[];
     for(const h of scoped){ const it=items[h.id]; if(!it) continue;
       const tg=itemTriggers(it); if(!tg.length && !it.decision) continue;
-      const s=habitWeekStats(h,w,until); if(s.actif>0 && s.tenu>=s.actif) continue; // devenue tenue -> plus de motif
+      const s=habitWeekStats(h,w,until); if(!s.broken.length) continue; // devenue tenue -> plus de motif
       const trTxt=tg.length?`<span class="hi-trig">${tg.map(esc).join(', ')}</span>`:'';
       const decTxt=it.decision?`<span class="hi-dec ${decClass(it.decision)}">${esc(decLabel(it.decision))}</span>`:'';
       const arrow=(tg.length&&it.decision)?`<span class="hi-arrow">→</span>`:'';
@@ -1166,7 +1175,7 @@ function renderDay(){
   else{
     hl.innerHTML=hs.map(h=>{ const v=d.h[h.id];
       const skipped = v===SKIP;
-      const scheduled = activeDaysOf(h).includes(wd);   // applicable aujourd'hui selon planning
+      const scheduled = activeDaysOf(h,curDay).includes(wd);   // applicable aujourd'hui selon planning
       const rest = !scheduled && !skipped && !hasLog(h,v); // jour "repos" (hors planning, non renseignée)
       const liCls = (skipped?'skipped ':'')+(rest?'rest':'');
       const tag = skipped ? `<small class="daytag">${t('skipped')}</small>` : (rest? `<button class="daytag restdo" data-restdo="${h.id}" title="${t('rest_do')}">${t('rest')}</button>` : '');
@@ -1315,7 +1324,23 @@ document.getElementById('hAdd').addEventListener('click',()=>{
   const seuil=(type==='quant' && seuilRaw!=='' && !isNaN(Number(seuilRaw)))?Number(seuilRaw):null;
   const activeDays=Array.from(newDays).sort((a,b)=>a-b);
   if(editingId){
-    const h=state.habits.find(x=>x.id===editingId); if(h){ Object.assign(h,{name,type,unit,target,seuil,color:newColor,importance,activeDays}); saveLocal(); commitHabit(h); }
+    const h=state.habits.find(x=>x.id===editingId);
+    if(h){
+      const oldDays=Array.isArray(h.activeDays)?h.activeDays.slice():[0,1,2,3,4,5,6];
+      const changed = oldDays.slice().sort().join(',') !== activeDays.slice().sort().join(',');
+      if(changed){
+        const today=todayKey();
+        if(!Array.isArray(h.daysHist)||!h.daysHist.length){
+          // 1er changement : l'ancien planning s'applique à tout le passé, le nouveau à partir d'aujourd'hui
+          h.daysHist=[{from:'1970-01-01',days:oldDays},{from:today,days:activeDays}];
+        } else {
+          const ex=h.daysHist.find(x=>x.from===today);
+          if(ex) ex.days=activeDays; else h.daysHist.push({from:today,days:activeDays});
+          h.daysHist.sort((a,b)=>a.from<b.from?-1:1);
+        }
+      }
+      Object.assign(h,{name,type,unit,target,seuil,color:newColor,importance,activeDays}); saveLocal(); commitHabit(h);
+    }
     exitEdit();
   } else {
     const h={id:id(),name,type,color:newColor,unit,target,seuil,importance,active:true,rodage:true,activeDays};
