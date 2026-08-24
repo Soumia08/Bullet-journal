@@ -663,14 +663,17 @@ function isDone(h,v){ if(v==null||v===false||v===SKIP)return false; if(h.type===
 function isExceeded(h,v){ return h.type==='quant' && v!=null && v!==SKIP && v!=='' && Number(v) > Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // Jours de la semaine où l'habitude s'applique (getDay: 0=dim..6=sam). Absent => tous.
+function habitLastDay(h){ let last=null; for(const k in state.days){ const dd=state.days[k]; const v=dd&&dd.h&&dd.h[h.id];
+  if(v!=null&&v!==''&&v!==false&&v!==SKIP){ if(!last||k>last) last=k; } } return last; }
 function activeOn(h,k){
-  if(h.activeHist && h.activeHist.length){
+  if(h.activeHist && h.activeHist.length){          // OFF/ON daté -> précis
     let e=h.activeHist[0];
     for(const x of h.activeHist){ if(!k || x.from<=k) e=x; else break; }
     return e.active!==false;
   }
-  if(k && k < todayKey()) return true;   // pas d'historique : le passé reste actif
-  return h.active!==false;                // aujourd'hui / futur : statut courant
+  if(h.active!==false) return true;                 // active actuellement -> actif partout
+  const last=habitLastDay(h);                        // OFF sans historique : actif jusqu'à sa dernière activité
+  return !!k && !!last && k<=last;
 }
 function activeDaysOf(h,k){
   if(h.daysHist && h.daysHist.length){
