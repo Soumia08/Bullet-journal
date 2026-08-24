@@ -669,7 +669,8 @@ function activeOn(h,k){
     for(const x of h.activeHist){ if(!k || x.from<=k) e=x; else break; }
     return e.active!==false;
   }
-  return h.active!==false;
+  if(k && k < todayKey()) return true;   // pas d'historique : le passé reste actif
+  return h.active!==false;                // aujourd'hui / futur : statut courant
 }
 function activeDaysOf(h,k){
   if(h.daysHist && h.daysHist.length){
