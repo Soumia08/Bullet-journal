@@ -543,7 +543,7 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 function parseHist(s){ if(s==null||s==='') return null; try{ const a=JSON.parse(s); return Array.isArray(a)&&a.length?a:null; }catch(e){ return null; } }
 async function supaGetState(){
   // Habitudes — repli si la colonne 'rodage' n'existe pas encore
-  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,days_hist,active_days').eq('archived',false).order('position');
+  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,days_hist,active_hist,active_days').eq('archived',false).order('position');
   if(h.error) h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position');
   const [l,d,tk] = await Promise.all([
     supa.from('logs').select('day,habit_id,value'),
@@ -551,7 +551,7 @@ async function supaGetState(){
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,daysHist:parseHist(x.days_hist),activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,daysHist:parseHist(x.days_hist),activeHist:parseHist(x.active_hist),activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -570,7 +570,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,days_hist:p.daysHist?JSON.stringify(p.daysHist):null,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,days_hist:p.daysHist?JSON.stringify(p.daysHist):null,active_hist:p.activeHist?JSON.stringify(p.activeHist):null,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -663,6 +663,14 @@ function isDone(h,v){ if(v==null||v===false||v===SKIP)return false; if(h.type===
 function isExceeded(h,v){ return h.type==='quant' && v!=null && v!==SKIP && v!=='' && Number(v) > Number(h.target||1); }
 function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 // Jours de la semaine où l'habitude s'applique (getDay: 0=dim..6=sam). Absent => tous.
+function activeOn(h,k){
+  if(h.activeHist && h.activeHist.length){
+    let e=h.activeHist[0];
+    for(const x of h.activeHist){ if(!k || x.from<=k) e=x; else break; }
+    return e.active!==false;
+  }
+  return h.active!==false;
+}
 function activeDaysOf(h,k){
   if(h.daysHist && h.daysHist.length){
     let e=h.daysHist[0];
@@ -673,7 +681,7 @@ function activeDaysOf(h,k){
 }
 // Est-ce que l'habitude "compte" ce jour-là ? (planning + skip + exception si renseignée)
 function counts(h,k){
-  if(h.active===false) return false;              // OFF global
+  if(!activeOn(h,k)) return false;                // OFF (daté) à cette date
   const v=hv(k,h.id);
   if(v===SKIP) return false;                      // "ne pas compter aujourd'hui"
   if(hasLog(h,v)) return true;                    // faite/saisie -> compte même hors planning
@@ -696,8 +704,8 @@ function progress(h,v){
 // Taux de complétion pondéré par l'importance ET proportionnel à la progression
 function completion(k){
   let tot=0, done=0;
-  for(const h of activeHabits()){
-    if(!counts(h,k)) continue;                    // jour non applicable / skip -> ignoré
+  for(const h of state.habits){
+    if(!counts(h,k)) continue;                    // OFF ce jour / jour non applicable / skip -> ignoré
     const w=weightOf(h); tot+=w; done += w*progress(h, hv(k,h.id));
   }
   return tot ? done/tot : 0;
@@ -726,7 +734,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6],daysHist:Array.isArray(h.daysHist)?h.daysHist:null}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6],daysHist:Array.isArray(h.daysHist)?h.daysHist:null,activeHist:Array.isArray(h.activeHist)?h.activeHist:null}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitPeriod(pd){ push('period', {id:pd.id,start:pd.start,habitIds:pd.habitIds||[]}); }
 function commitPeriodDel(id){ push('periodDel', {id}); }
@@ -772,9 +780,9 @@ function renderTiles(){
 }
 function renderMatrix(){
   const box=document.getElementById('matrix');
-  const hs=activeHabits();
-  if(!hs.length){ box.innerHTML=`<p class="empty">${t('empty_no_habits')}</p>`; return; }
   const keys=lastNKeys(35);
+  const hs=state.habits.filter(h=>h.active!==false || keys.some(k=>activeOn(h,k)));
+  if(!hs.length){ box.innerHTML=`<p class="empty">${t('empty_no_habits')}</p>`; return; }
   let head='<tr><th></th>';
   keys.forEach(k=>{ const d=parseKey(k); const first=d.getDate()===1;
     head+=`<th class="mcol-head${first?' month':''}">${first?I18N[lang].months[d.getMonth()]:(d.getDay()===1?d.getDate():'')}</th>`; });
@@ -920,8 +928,9 @@ function habitFirstDay(h){ let first=null; for(const k in state.days){ const dd=
   if(v!=null&&v!==''&&v!==false&&v!==SKIP){ if(!first||k<first) first=k; } } return first; }
 function habitStartWeek(h){ const f=habitFirstDay(h); return f? mondayOf(f) : mondayOf(todayKey()); }
 // une semaine n'affiche que les habitudes déjà suivies à ce moment-là
-function planHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage!==false && habitStartWeek(h)<=startK); }
-function acquiredHabitsForWeek(startK){ return state.habits.filter(h=>h.active!==false && h.rodage===false && habitStartWeek(h)<=startK); }
+function wasActiveInWeek(h,startK){ return activeOn(h,startK) || activeOn(h,addDaysK(startK,6)); }
+function planHabitsForWeek(startK){ return state.habits.filter(h=>wasActiveInWeek(h,startK) && h.rodage!==false && habitStartWeek(h)<=startK); }
+function acquiredHabitsForWeek(startK){ return state.habits.filter(h=>wasActiveInWeek(h,startK) && h.rodage===false && habitStartWeek(h)<=startK); }
 // Verrou : les 2 semaines suivant la dernière révision du plan
 function isLockedWeek(startK){ const lr=state.settings.lastRevision; if(!lr) return false;
   const rm=mondayOf(lr); return startK===rm || startK===addDaysK(rm,7); }
@@ -929,7 +938,7 @@ function markRevision(){ state.settings.lastRevision=todayKey(); saveLocal(); co
 
 /* ---- stats d'une habitude sur une semaine ---- */
 function habitWeekStats(h,startK,untilK){ let actif=0,tenu=0; const broken=[]; const end=untilK||addDaysK(startK,6);
-  for(const k of weekDatesK(startK)){ if(k>end) break; if(h.active===false) continue;
+  for(const k of weekDatesK(startK)){ if(k>end) break; if(!activeOn(h,k)) continue;
     const v=hv(k,h.id); if(v===SKIP) continue;
     const scheduled=activeDaysOf(h,k).includes(parseKey(k).getDay());
     const held=isHeld(h,v);
@@ -1353,7 +1362,11 @@ document.getElementById('habitTable').addEventListener('click',e=>{
   const ed=e.target.closest('[data-hedit]');
   if(ed){ startEdit(ed.dataset.hedit); return; }
   const tg=e.target.closest('[data-hactive]');
-  if(tg){ const h=state.habits.find(x=>x.id===tg.dataset.hactive); if(h){ h.active=(h.active===false); saveLocal(); commitHabit(h); renderHabits(); renderDash(); } return; }
+  if(tg){ const h=state.habits.find(x=>x.id===tg.dataset.hactive); if(h){
+      const oldActive=h.active!==false, newActive=!oldActive, today=todayKey();
+      if(!Array.isArray(h.activeHist)||!h.activeHist.length){ h.activeHist=[{from:'1970-01-01',active:oldActive},{from:today,active:newActive}]; }
+      else { const ex=h.activeHist.find(x=>x.from===today); if(ex) ex.active=newActive; else h.activeHist.push({from:today,active:newActive}); h.activeHist.sort((a,b)=>a.from<b.from?-1:1); }
+      h.active=newActive; saveLocal(); commitHabit(h); renderHabits(); renderDash(); } return; }
   const del=e.target.closest('[data-hdel]'); if(!del)return;
   const h=state.habits.find(x=>x.id===del.dataset.hdel);
   if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ if(editingId===del.dataset.hdel) exitEdit(); state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
