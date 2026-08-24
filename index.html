@@ -453,6 +453,7 @@
         <div class="field"><label data-i18n="f_color"></label><div class="colorrow"><div class="swatches" id="hSwatches"></div><input type="color" class="cpick" id="hColorPicker" value="#C0295A" aria-label="couleur libre" /></div></div>
       </div>
       <div class="field" style="margin-top:12px"><label data-i18n="f_days"></label><div class="daysel" id="hDays"></div></div>
+      <div class="field" style="margin-top:12px"><label data-i18n="f_off"></label><input class="text" type="date" id="hOff" style="max-width:200px" /> <button class="link" id="hOffClear" type="button" data-i18n="f_off_clear" style="display:none"></button></div>
       <div style="margin-top:14px"><button class="btn" id="hAdd" data-i18n="create_habit"></button> <button class="link" id="hCancel" style="display:none" data-i18n="cancel"></button></div>
     </div>
     <div class="card"><h2 data-i18n="mine"></h2><table class="htable" id="habitTable"></table></div>
@@ -486,7 +487,7 @@ const I18N = {
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
     note_title:'Note du jour', note_ph:'Une pensée, une gratitude, ce que tu as appris…', task_ph:'• nouvelle tâche…',
     new_habit:'Nouvelle habitude', f_name:'Nom', f_type:'Type', t_binary:'Fait / pas fait', t_quant:'Quantifié',
-    f_unit:'Unité', f_target:'Objectif / j', f_seuil:'Seuil min', f_color:'Couleur', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
+    f_unit:'Unité', f_target:'Objectif / j', f_seuil:'Seuil min', f_color:'Couleur', f_off:'Arrêtée le (optionnel)', f_off_clear:'réactiver', f_importance:'Importance', th_imp:'Importance', th_active:'Actif', create_habit:"Créer l'habitude", mine:'Mes habitudes',
     th_name:'Nom', th_type:'Type', th_target:'Objectif', delete:'supprimer', obj:'obj.', edit:'modifier', edit_habit:"Modifier l'habitude", save_habit:'Enregistrer', cancel:'annuler', f_days:'Jours actifs', skipped:'ignoré', rest:'repos', skip_day:'Ne pas compter ce jour', rest_do:'Faire malgré le repos', pending_today:"aujourd'hui en attente", st_held:'tenu', st_done:'accompli', st_over:'dépassé',
     name_ph:'ex. Lire', unit_ph:'pages, min…',
     empty_no_habits:"Aucune habitude. Ajoute-en dans l'onglet Habitudes.", empty_create_first:"Crée d'abord une habitude.", empty_none:'Rien pour l\'instant.',
@@ -502,7 +503,7 @@ const I18N = {
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
     note_title:'Day note', note_ph:'A thought, a gratitude, something you learned…', task_ph:'• new task…',
     new_habit:'New habit', f_name:'Name', f_type:'Type', t_binary:'Done / not done', t_quant:'Quantified',
-    f_unit:'Unit', f_target:'Goal / day', f_seuil:'Min', f_color:'Color', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
+    f_unit:'Unit', f_target:'Goal / day', f_seuil:'Min', f_color:'Color', f_off:'Stopped on (optional)', f_off_clear:'reactivate', f_importance:'Importance', th_imp:'Importance', th_active:'Active', create_habit:'Create habit', mine:'My habits',
     th_name:'Name', th_type:'Type', th_target:'Goal', delete:'delete', obj:'goal', edit:'edit', edit_habit:'Edit habit', save_habit:'Save', cancel:'cancel', f_days:'Active days', skipped:'skipped', rest:'off', skip_day:'Skip this day', rest_do:'Do it anyway', pending_today:'today pending', st_held:'held', st_done:'done', st_over:'exceeded',
     name_ph:'e.g. Read', unit_ph:'pages, min…',
     empty_no_habits:'No habits yet. Add some in the Habits tab.', empty_create_first:'Create a habit first.', empty_none:'Nothing yet.',
@@ -518,7 +519,7 @@ const I18N = {
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
     note_title:'ملاحظة اليوم', note_ph:'فكرة، امتنان، شيء تعلّمتِه…', task_ph:'• مهمة جديدة…',
     new_habit:'عادة جديدة', f_name:'الاسم', f_type:'النوع', t_binary:'مُنجز / غير مُنجز', t_quant:'كمّي',
-    f_unit:'الوحدة', f_target:'الهدف / يوم', f_seuil:'الحد الأدنى', f_color:'اللون', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
+    f_unit:'الوحدة', f_target:'الهدف / يوم', f_seuil:'الحد الأدنى', f_color:'اللون', f_off:'أُوقفت في (اختياري)', f_off_clear:'إعادة التفعيل', f_importance:'الأهمية', th_imp:'الأهمية', th_active:'مُفعّل', create_habit:'إنشاء العادة', mine:'عاداتي',
     th_name:'الاسم', th_type:'النوع', th_target:'الهدف', delete:'حذف', obj:'هدف', edit:'تعديل', edit_habit:'تعديل العادة', save_habit:'حفظ', cancel:'إلغاء', f_days:'الأيام الفعّالة', skipped:'مُتخطّى', rest:'راحة', skip_day:'تخطّي هذا اليوم', rest_do:'قم بها رغم الراحة', pending_today:'اليوم قيد الانتظار', st_held:'محقّق', st_done:'مُنجز', st_over:'تجاوز',
     name_ph:'مثال: القراءة', unit_ph:'صفحات، دقائق…',
     empty_no_habits:'لا توجد عادات بعد. أضِف من تبويب العادات.', empty_create_first:'أنشئ عادة أولًا.', empty_none:'لا شيء بعد.',
@@ -543,7 +544,7 @@ const KEY='carnet:v1', OUTBOX='carnet:outbox', LANGKEY='carnet:lang';
 function parseHist(s){ if(s==null||s==='') return null; try{ const a=JSON.parse(s); return Array.isArray(a)&&a.length?a:null; }catch(e){ return null; } }
 async function supaGetState(){
   // Habitudes — repli si la colonne 'rodage' n'existe pas encore
-  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,days_hist,active_hist,active_days').eq('archived',false).order('position');
+  let h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,rodage,days_hist,active_hist,off_date,active_days').eq('archived',false).order('position');
   if(h.error) h = await supa.from('habits').select('id,name,type,unit,target,seuil,color,position,importance,active,active_days').eq('archived',false).order('position');
   const [l,d,tk] = await Promise.all([
     supa.from('logs').select('day,habit_id,value'),
@@ -551,7 +552,7 @@ async function supaGetState(){
     supa.from('tasks').select('id,day,txt,done').order('position')
   ]);
   for(const r of [h,l,d,tk]) if(r.error) throw r.error;
-  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,daysHist:parseHist(x.days_hist),activeHist:parseHist(x.active_hist),activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
+  const habits = h.data.map(x=>({id:x.id,name:x.name,type:x.type,unit:x.unit||'',target:Number(x.target||1),seuil:(x.seuil!=null&&x.seuil!=='')?Number(x.seuil):null,color:x.color,importance:Number(x.importance||1),active:x.active!==false,rodage:x.rodage!==false,daysHist:parseHist(x.days_hist),activeHist:parseHist(x.active_hist),offDate:x.off_date||null,activeDays:(x.active_days!=null&&x.active_days!=='')?String(x.active_days).split(',').map(Number):[0,1,2,3,4,5,6]}));
   const days = {};
   const touch = k => { if(!days[k]) days[k]={h:{},mood:null,note:'',tasks:[]}; };
   for(const r of l.data){ touch(r.day); const v=r.value; days[r.day].h[r.habit_id] = (v!=null && v!=='' && !isNaN(v)) ? Number(v) : v; }
@@ -570,7 +571,7 @@ async function supaGetState(){
 async function applyOp(op){
   const p = op.payload; let res;
   switch(op.kind){
-    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,days_hist:p.daysHist?JSON.stringify(p.daysHist):null,active_hist:p.activeHist?JSON.stringify(p.activeHist):null,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
+    case 'habit':    res = await supa.from('habits').upsert({id:p.id,user_id:UID,name:p.name,type:p.type,unit:p.unit,target:p.target,seuil:(p.seuil!=null&&p.seuil!=='')?p.seuil:null,color:p.color,importance:p.importance||1,active:p.active!==false,rodage:p.rodage!==false,days_hist:p.daysHist?JSON.stringify(p.daysHist):null,active_hist:p.activeHist?JSON.stringify(p.activeHist):null,off_date:p.offDate||null,active_days:(p.activeDays||[0,1,2,3,4,5,6]).join(',')}); break;
     case 'habitDel': res = await supa.from('habits').delete().eq('id',p.id); break;
     case 'log':
       if(p.value==null) res = await supa.from('logs').delete().eq('user_id',UID).eq('day',p.day).eq('habit_id',p.habit_id);
@@ -666,14 +667,10 @@ function hv(k,hid){const d=dayRO(k);return d&&d.h?d.h[hid]:undefined;}
 function habitLastDay(h){ let last=null; for(const k in state.days){ const dd=state.days[k]; const v=dd&&dd.h&&dd.h[h.id];
   if(v!=null&&v!==''&&v!==false&&v!==SKIP){ if(!last||k>last) last=k; } } return last; }
 function activeOn(h,k){
-  if(h.activeHist && h.activeHist.length){          // OFF/ON daté -> précis
-    let e=h.activeHist[0];
-    for(const x of h.activeHist){ if(!k || x.from<=k) e=x; else break; }
-    return e.active!==false;
-  }
-  if(h.active!==false) return true;                 // active actuellement -> actif partout
-  const last=habitLastDay(h);                        // OFF sans historique : actif jusqu'à sa dernière activité
-  return !!k && !!last && k<=last;
+  if(h.offDate){ return (k||todayKey()) < h.offDate; }   // arrêtée le offDate -> active avant cette date
+  if(h.activeHist && h.activeHist.length){ let e=h.activeHist[0]; for(const x of h.activeHist){ if(!k||x.from<=k) e=x; else break; } return e.active!==false; }
+  if(h.active!==false) return true;
+  const last=habitLastDay(h); return !!k && !!last && k<=last; // OFF ancien sans date : jusqu'à la dernière activité
 }
 function activeDaysOf(h,k){
   if(h.daysHist && h.daysHist.length){
@@ -738,7 +735,7 @@ function push(kind, payload){
   enqueue({kind, payload});
   flushOutbox().then(ok=>{ if(ok!==online){ online=ok; setNet(); } });
 }
-function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6],daysHist:Array.isArray(h.daysHist)?h.daysHist:null,activeHist:Array.isArray(h.activeHist)?h.activeHist:null}); }
+function commitHabit(h){ push('habit', {id:h.id,name:h.name,type:h.type,unit:h.unit,target:h.target,color:h.color,seuil:(h.seuil!=null&&h.seuil!=='')?Number(h.seuil):null,importance:h.importance||1,active:h.active!==false,rodage:h.rodage!==false,activeDays:Array.isArray(h.activeDays)?h.activeDays:[0,1,2,3,4,5,6],daysHist:Array.isArray(h.daysHist)?h.daysHist:null,activeHist:Array.isArray(h.activeHist)?h.activeHist:null,offDate:h.offDate||null}); }
 function commitHabitDel(hid){ push('habitDel', {id:hid}); }
 function commitPeriod(pd){ push('period', {id:pd.id,start:pd.start,habitIds:pd.habitIds||[]}); }
 function commitPeriodDel(id){ push('periodDel', {id}); }
@@ -1182,7 +1179,7 @@ const MOOD={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
 function renderDay(){
   document.getElementById('dayDate').value=curDay;
   const d=day(curDay), hl=document.getElementById('dayHabits');
-  const hs=activeHabits();
+  const hs=state.habits.filter(h=>activeOn(h,curDay));
   const wd=parseKey(curDay).getDay();
   if(!hs.length){ hl.innerHTML=`<li class="empty">${t('empty_create_first')}</li>`; }
   else{
@@ -1218,7 +1215,7 @@ function renderHabitTable(){
   const el=document.getElementById('habitTable');
   if(!state.habits.length){ el.innerHTML=`<tr><td class="empty">${t('empty_no_habits')}</td></tr>`; return; }
   el.innerHTML=`<thead><tr><th>${t('th_name')}</th><th>${t('th_type')}</th><th>${t('th_target')}</th><th>${t('th_imp')}</th><th>${t('th_active')}</th><th></th></tr></thead><tbody>`+
-    state.habits.map(h=>{ const on=h.active!==false;
+    state.habits.map(h=>{ const on=activeOn(h);
       return `<tr class="${on?'':'hoff'}">`+
         `<td data-label="${t('th_name')}"><span class="nm"><span class="cdot" style="background:${h.color}"></span> ${esc(h.name)}</span></td>`+
         `<td data-label="${t('th_type')}">${h.type==='binary'?t('t_binary'):t('t_quant')}</td>`+
@@ -1297,6 +1294,7 @@ let editingId=null;
 function resetHabitForm(){
   document.getElementById('hName').value=''; document.getElementById('hUnit').value=''; document.getElementById('hTarget').value=''; document.getElementById('hSeuil').value=''; document.getElementById('hImp').value='1';
   document.getElementById('hType').value='binary'; document.getElementById('hUnit').disabled=true; document.getElementById('hTarget').disabled=true;
+  const off=document.getElementById('hOff'); if(off) off.value=''; const oc=document.getElementById('hOffClear'); if(oc) oc.style.display='none';
   newColor=PALETTE[0]; newDays=new Set([0,1,2,3,4,5,6]); renderDaySel();
   const cp=document.getElementById('hColorPicker'); if(cp) cp.value=PALETTE[0];
 }
@@ -1319,6 +1317,7 @@ function startEdit(hid){
   newColor=h.color; renderSwatches();
   const cp=document.getElementById('hColorPicker'); if(cp && /^#[0-9a-fA-F]{6}$/.test(h.color||'')) cp.value=h.color;
   newDays=new Set((Array.isArray(h.activeDays)&&h.activeDays.length)?h.activeDays:[0,1,2,3,4,5,6]); renderDaySel();
+  const off=document.getElementById('hOff'); if(off) off.value=h.offDate||''; const oc=document.getElementById('hOffClear'); if(oc) oc.style.display=h.offDate?'':'none';
   document.querySelector('#view-habits h2').textContent=t('edit_habit');
   document.getElementById('hAdd').textContent=t('save_habit');
   document.getElementById('hCancel').style.display='';
@@ -1326,6 +1325,10 @@ function startEdit(hid){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.getElementById('hCancel').addEventListener('click',exitEdit);
+(function(){ const off=document.getElementById('hOff'), oc=document.getElementById('hOffClear');
+  if(oc) oc.addEventListener('click',()=>{ if(off) off.value=''; oc.style.display='none'; });
+  if(off) off.addEventListener('change',()=>{ if(oc) oc.style.display=off.value?'':'none'; });
+})();
 
 document.getElementById('hAdd').addEventListener('click',()=>{
   const name=document.getElementById('hName').value.trim(); if(!name){document.getElementById('hName').focus();return;}
@@ -1336,6 +1339,9 @@ document.getElementById('hAdd').addEventListener('click',()=>{
   const seuilRaw=document.getElementById('hSeuil').value;
   const seuil=(type==='quant' && seuilRaw!=='' && !isNaN(Number(seuilRaw)))?Number(seuilRaw):null;
   const activeDays=Array.from(newDays).sort((a,b)=>a-b);
+  const offRaw=(document.getElementById('hOff')&&document.getElementById('hOff').value)||'';
+  const offDate = offRaw ? offRaw : null;
+  const activeNow = !offDate || (todayKey() < offDate);
   if(editingId){
     const h=state.habits.find(x=>x.id===editingId);
     if(h){
@@ -1352,11 +1358,12 @@ document.getElementById('hAdd').addEventListener('click',()=>{
           h.daysHist.sort((a,b)=>a.from<b.from?-1:1);
         }
       }
-      Object.assign(h,{name,type,unit,target,seuil,color:newColor,importance,activeDays}); saveLocal(); commitHabit(h);
+      if(offDate) h.activeHist=null; // la date d'arrêt explicite prime sur l'ancien historique
+      Object.assign(h,{name,type,unit,target,seuil,color:newColor,importance,activeDays,offDate,active:activeNow}); saveLocal(); commitHabit(h);
     }
     exitEdit();
   } else {
-    const h={id:id(),name,type,color:newColor,unit,target,seuil,importance,active:true,rodage:true,activeDays};
+    const h={id:id(),name,type,color:newColor,unit,target,seuil,importance,active:activeNow,rodage:true,activeDays,offDate};
     state.habits.push(h); saveLocal(); commitHabit(h);
     resetHabitForm();
   }
@@ -1367,10 +1374,10 @@ document.getElementById('habitTable').addEventListener('click',e=>{
   if(ed){ startEdit(ed.dataset.hedit); return; }
   const tg=e.target.closest('[data-hactive]');
   if(tg){ const h=state.habits.find(x=>x.id===tg.dataset.hactive); if(h){
-      const oldActive=h.active!==false, newActive=!oldActive, today=todayKey();
-      if(!Array.isArray(h.activeHist)||!h.activeHist.length){ h.activeHist=[{from:'1970-01-01',active:oldActive},{from:today,active:newActive}]; }
-      else { const ex=h.activeHist.find(x=>x.from===today); if(ex) ex.active=newActive; else h.activeHist.push({from:today,active:newActive}); h.activeHist.sort((a,b)=>a.from<b.from?-1:1); }
-      h.active=newActive; saveLocal(); commitHabit(h); renderHabits(); renderDash(); } return; }
+      const on=activeOn(h);
+      if(on){ h.active=false; h.offDate=todayKey(); }   // OFF : arrêtée à partir d'aujourd'hui
+      else { h.active=true; h.offDate=null; h.activeHist=null; } // ON : plus de date d'arrêt
+      saveLocal(); commitHabit(h); renderHabits(); renderDash(); } return; }
   const del=e.target.closest('[data-hdel]'); if(!del)return;
   const h=state.habits.find(x=>x.id===del.dataset.hdel);
   if(h&&confirm(t('delete')+' « '+h.name+' » ?')){ if(editingId===del.dataset.hdel) exitEdit(); state.habits=state.habits.filter(x=>x.id!==del.dataset.hdel); saveLocal(); commitHabitDel(del.dataset.hdel); renderHabits(); }});
