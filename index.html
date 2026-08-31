@@ -150,6 +150,16 @@
   .moodsplit .ms-col{ flex:1; text-align:center; background:var(--paper); border:1px solid var(--rule); border-radius:7px; padding:6px 6px; }
   .moodsplit .ms-val{ font-family:var(--serif); font-weight:900; font-size:17px; color:#2E5E9C; line-height:1; }
   .moodsplit .ms-cap{ font-family:var(--mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3); margin-top:4px; }
+  #journalMount .jfilters{ display:flex; flex-wrap:wrap; }
+  #journalMount .fchip{ font-family:var(--mono); font-size:12px; border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink-2); border-radius:20px; padding:5px 11px; margin:0 6px 6px 0; cursor:pointer; }
+  #journalMount .fchip.on{ border-color:#2E5E9C; color:var(--ink); background:#fff; }
+  #journalMount .jentry{ background:var(--paper-2); border:1.5px solid var(--rule); border-radius:12px; padding:12px 13px; margin-top:10px; }
+  #journalMount .jhead{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  #journalMount .jdate{ font-family:var(--serif); font-weight:900; font-size:15px; }
+  #journalMount .jfaces{ display:flex; gap:3px; }
+  #journalMount .jface{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:1.5px solid var(--rule); background:#fff; cursor:pointer; filter:grayscale(.6); opacity:.5; }
+  #journalMount .jface.on{ border-color:#2E5E9C; background:#EAF0F8; filter:none; opacity:1; }
+  #journalMount .jnote{ width:100%; margin-top:9px; border:1px solid var(--rule); border-radius:8px; padding:8px 10px; font-family:var(--sans); font-size:14px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box; }
   #reviewMount .revsub{ font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px; }
   #reviewMount .revnav{ display:flex;align-items:center;justify-content:space-between;margin:14px 0 4px; }
   #reviewMount .revweek{ font-family:var(--serif);font-weight:900;font-size:16px; }
@@ -390,6 +400,7 @@
     <button class="tab" role="tab" aria-selected="false" data-view="day"    data-i18n="tab_day"></button>
     <button class="tab" role="tab" aria-selected="false" data-view="habits" data-i18n="tab_habits"></button>
     <button class="tab" role="tab" aria-selected="false" data-view="review" data-i18n="tab_review"></button>
+    <button class="tab" role="tab" aria-selected="false" data-view="journal" data-i18n="tab_journal"></button>
   </nav>
 
   <section class="view on" id="view-dash">
@@ -461,6 +472,9 @@
   <section class="view" id="view-review">
     <div id="reviewMount"></div>
   </section>
+  <section class="view" id="view-journal">
+    <div id="journalMount"></div>
+  </section>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -481,7 +495,7 @@ let supa = null, UID = null, MODE = 'local';   // 'supabase' une fois connecté(
 
 /* ---- i18n ---- */
 const I18N = {
-  fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes', tab_review:'Revue',
+  fr:{ tagline:'journal · habitudes', tab_dash:'Tableau de bord', tab_day:"Aujourd'hui", tab_habits:'Habitudes', tab_review:'Revue', tab_journal:'Journal',
     matrix_title:'Matrice — 35 derniers jours', leg_done:'jour tenu', leg_not:'non tenu', leg_int:'remplissage = valeur / objectif',
     comp_title:'Taux de complétion', mood_title:'Humeur', streaks_title:'Séries en cours', r_week:'Semaine', r_month:'Mois en cours', r_3m:'3 mois', r_6m:'6 mois', avg:'moyenne',
     day_habits:'Habitudes', day_mood:'Humeur du jour', day_rapidlog:'Rapid log — tâches & notes', add:'Ajouter',
@@ -497,7 +511,7 @@ const I18N = {
     li_hint:'Une fois par appareil. Le même compte = les mêmes données partout.', logout:'déconnexion',
     days:['dim','lun','mar','mer','jeu','ven','sam'],
     months:['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'], loc:'fr-FR' },
-  en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits', tab_review:'Review',
+  en:{ tagline:'journal · habits', tab_dash:'Dashboard', tab_day:'Today', tab_habits:'Habits', tab_review:'Review', tab_journal:'Journal',
     matrix_title:'Matrix — last 35 days', leg_done:'day kept', leg_not:'not kept', leg_int:'fill = value / target',
     comp_title:'Completion rate', mood_title:'Mood', streaks_title:'Current streaks', r_week:'Week', r_month:'This month', r_3m:'3 months', r_6m:'6 months', avg:'average',
     day_habits:'Habits', day_mood:"Today's mood", day_rapidlog:'Rapid log — tasks & notes', add:'Add',
@@ -513,7 +527,7 @@ const I18N = {
     li_hint:'Once per device. Same account = same data everywhere.', logout:'sign out',
     days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], loc:'en-US' },
-  ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات', tab_review:'مراجعة',
+  ar:{ tagline:'يوميات · عادات', tab_dash:'لوحة القيادة', tab_day:'اليوم', tab_habits:'العادات', tab_review:'مراجعة', tab_journal:'اليوميات',
     matrix_title:'المصفوفة — آخر 35 يومًا', leg_done:'يوم مُنجز', leg_not:'غير مُنجز', leg_int:'التعبئة = القيمة / الهدف',
     comp_title:'نسبة الإنجاز', mood_title:'المزاج', streaks_title:'السلاسل الجارية', r_week:'أسبوع', r_month:'هذا الشهر', r_3m:'3 أشهر', r_6m:'6 أشهر', avg:'المتوسط',
     day_habits:'العادات', day_mood:'مزاج اليوم', day_rapidlog:'تدوين سريع — مهام وملاحظات', add:'إضافة',
@@ -877,6 +891,49 @@ function renderCharts(){
 function renderDash(){ renderTiles(); renderMatrix(); renderStreaks(); renderCharts(); renderWeekGlance(); }
 
 /* ============================================================
+   JOURNAL : humeur + note par jour, liste chronologique + filtre
+   ============================================================ */
+const JRN={
+  fr:{ title:'Journal', filter:'Filtrer par humeur', all:'Toutes', addnote:'Ajouter une note…', none:'Aucune entrée pour ce filtre.' },
+  en:{ title:'Journal', filter:'Filter by mood', all:'All', addnote:'Add a note…', none:'No entry for this filter.' },
+  ar:{ title:'اليوميات', filter:'تصفية حسب المزاج', all:'الكل', addnote:'أضف ملاحظة…', none:'لا إدخال لهذا التصفية.' }
+};
+function jn(k){ return (JRN[lang]&&JRN[lang][k])||JRN.fr[k]||k; }
+let journalMoods=new Set(); // vide = toutes ; sinon ensemble d'humeurs sélectionnées
+function journalEntryDate(k){ const d=parseKey(k); return `${I18N[lang].days[d.getDay()]} ${d.getDate()} ${I18N[lang].months[d.getMonth()]} ${d.getFullYear()}`; }
+function renderJournal(){
+  const mount=document.getElementById('journalMount'); if(!mount) return;
+  // jours ayant une humeur ou une note, du plus récent au plus ancien
+  let keys=Object.keys(state.days).filter(k=>{ const d=state.days[k]; return d && (d.mood!=null || (d.note&&d.note.trim())); }).sort().reverse();
+  if(journalMoods.size) keys=keys.filter(k=>journalMoods.has(state.days[k].mood));
+  const fchip=(val,label,on)=>`<button class="fchip${on?' on':''}" data-jfilter="${val}">${label}</button>`;
+  const filters=`<div class="jfilters">`+fchip(0,jn('all'),journalMoods.size===0)+[1,2,3,4,5].map(m=>fchip(m,`${MOOD[m]} ${m}`,journalMoods.has(m))).join('')+`</div>`;
+  let list='';
+  if(!keys.length){ list=`<p class="empty">${jn('none')}</p>`; }
+  else for(const k of keys){ const d=state.days[k];
+    const faces=[1,2,3,4,5].map(m=>`<button class="jface${d.mood===m?' on':''}" data-jmood="${k}" data-m="${m}" aria-pressed="${d.mood===m}">${MOOD[m]}</button>`).join('');
+    const noteVal=d.note||'';
+    list+=`<div class="jentry"><div class="jhead"><span class="jdate">${journalEntryDate(k)}</span><div class="jfaces">${faces}</div></div>`+
+      `<textarea class="jnote" data-jnote="${k}" rows="2" placeholder="${jn('addnote')}">${esc(noteVal)}</textarea></div>`;
+  }
+  mount.innerHTML=`<div class="card">
+    <h2 style="margin:0">${jn('title')}</h2>
+    <div class="revlbl" style="margin:14px 0 6px">${jn('filter')}</div>
+    ${filters}
+  </div>${list}`;
+  wireJournal(mount);
+}
+function wireJournal(mount){
+  mount.querySelectorAll('[data-jfilter]').forEach(b=>b.onclick=()=>{ const v=Number(b.dataset.jfilter);
+    if(v===0){ journalMoods.clear(); } else { journalMoods.has(v)?journalMoods.delete(v):journalMoods.add(v); }
+    renderJournal(); });
+  mount.querySelectorAll('[data-jmood]').forEach(b=>b.onclick=()=>{ const k=b.dataset.jmood, m=Number(b.dataset.m); const d=day(k);
+    d.mood=(d.mood===m?null:m); saveLocalSoon(); commitDay(k,d.mood,d.note); renderJournal(); });
+  mount.querySelectorAll('[data-jnote]').forEach(t=>{ t.addEventListener('input',e=>{ const k=t.dataset.jnote, d=day(k); d.note=e.target.value; saveLocalSoon();
+    clearTimeout(t._nt); t._nt=setTimeout(()=>commitDay(k,d.mood,d.note),600); }); });
+}
+
+/* ============================================================
    REVUE HEBDOMADAIRE (lit les données, ne les modifie pas)
    ============================================================ */
 const DEFAULT_TRIGGERS=['fatigue','ennui','tension','après une tâche','sans raison'];
@@ -1234,7 +1291,7 @@ function renderHabits(){ renderSwatches(); renderDaySel(); renderHabitTable(); }
 function switchView(v){
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
-  if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits(); if(v==='review')renderReview();
+  if(v==='dash')renderDash(); if(v==='day')renderDay(); if(v==='habits')renderHabits(); if(v==='review')renderReview(); if(v==='journal')renderJournal();
 }
 document.querySelectorAll('.tab').forEach(x=>x.addEventListener('click',()=>switchView(x.dataset.view)));
 document.getElementById('rangeSel').addEventListener('click',e=>{ const b=e.target.closest('[data-range]'); if(!b)return;
